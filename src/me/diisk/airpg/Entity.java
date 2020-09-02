@@ -69,6 +69,8 @@ public class Entity implements Ordenable{
 		health = getMaxHealth();
 	}
 	
+	//TESTE
+	
 	public void addAggroFor(Entity target, double value) {
 		if(aggroList.containsKey(target)) {
 			aggroList.replace(target, value);
