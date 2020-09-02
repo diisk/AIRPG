@@ -1,0 +1,206 @@
+Raça: irá conter os atributos base, e 1 habilidade passiva.
+10 atributo base maximo
+
+UNDEAD: Ao morrer possui chance de renascer com 20% da vida maxima, a chance diminui a cada morte.
+HUMAN: possui +25% de chance em todos os testes
+VAMPIRE: Roubo de vida é dobrado.
+HALF_DRAGON: ataques causam 2% da vida maxima do alvo como dano adicional.
+AUTOMATO: 25% chance de refletir um ataque recebido, causando dano baseado na propria defesa
+ELF: todas habilidades de cura são 100% mais efetivas
+DARK_ELF: todas as habilidades de dano são 20% mais fortes
+HALF_DEMON: todos os ataques possuem 20% de chance de causar dano dobrado ao custo de 5% da vida máxima.
+ANGEL: evasão dobrada
+GOLEM: vida maxima dobrada
+REPTILIAN: regeneração de vida dobrada
+FERAL: dano critico 50% mais forte
+DARKIN: ignora a defesa do oponente e aumenta toda cura recebida em 50%
+ABYSSAL: suas curas de alvo unico possuem 80% de chance de replicar em outro alvo, reduzindo as chances pela metade em cada replica.
+FAIRY: Seus ataques absorvem 10% da energia atual do alvo e a transforma em escudo até o inicio do seu proximo turno.
+
+
+Classe: irá conter o multiplicador de atributo por level, e 1 habilidade passiva.
+
+ARCHER: acerto dobrado
+BARBARIAN: ataques possuem 20% de chance de absorver 5% da vida maxima para causar como dano adicional.
+KNIGHT: defesa dobrada
+ASSASSIN: chance de acerto critico dobrado
+SORCERER: 30% de dano adicional
+PRIEST: suas curas aplicam um escudo que absorve dano basedo em 100% do seu poder de ataque no proximo ataque ou até o inicio do seu proximo turno.
+DRUID: suas curas recebem um adicional de 100% que é aplicado durante as proximas 3 rodadas.
+WARLOCK: seus ataques causam efeitos aleatorios, como, corta 50% da cura até o proximo turno, defesa 0 até o proximo turno e 20% de dano adicional
+MONK: cada acerto aumenta em 10% o poder de ataque durante a rodada, e possui 50% de chance de um contra ataque durante uma evasão
+PALADIN: ataques possuem 20% de chance de curar 15% da vida maxima do alvo mais injuriado
+NINJA: 10% de executar um inimigo com 20% ou menos de vida.
+NECROMANCER: possui 10% de roubo de vida.
+
+
+Arma: irá conter atributos adicionais, e 1 habilidade ativa.
+
+ARCHER{
+	LONG_BOW{
+		Iniciativa: 2
+		Acerto: 4*ITEMRARITYLVL
+		Critico: 25*ITEMRARITYLVL
+		Dano: 20%~25%*ITEMRARITYLVL
+		OBS: 1 ataque por rodada
+	}
+	SHORT_BOW{
+		Iniciativa: 4
+		Acerto: 4*ITEMRARITYLVL
+		Critico: 5*ITEMRARITYLVL
+		Dano: 6%~8%*ITEMRARITYLVL
+		OBS: 3 ataques por rodada
+	}
+}
+BARBARIAN{
+	DUAL_AXE{
+		Iniciativa: 1
+		Acerto: 10*ITEMRARITYLVL
+		Critico: 1*ITEMRARITYLVL
+		Dano: 7%~13%*ITEMRARITYLVL
+		OBS: 2 ataques por rodada e possui 20% chance de deixar o alvo sangrando 3% de sua vida maxima por 3 rodadas.
+	}
+	GIANT_HAMMER{
+		Iniciativa: 1
+		Acerto: 9*ITEMRARITYLVL
+		Critico: 7*ITEMRARITYLVL
+		Dano: 13%~15%*ITEMRARITYLVL
+		OBS: 1 ataque por rodada e possui 15% de deixar o alvo desnorteado até o inicio do seu proximo turno.
+	}
+}
+KNIGHT{
+	LONG_SWORD{
+		Iniciativa: 3
+		Acerto: 10*ITEMRARITYLVL
+		Critico: 5*ITEMRARITYLVL
+		Dano: 15%~20%*ITEMRARITYLVL
+		Roubo de vida: 5%*ITEMRARITYLVL
+		OBS: 1 ataque por rodada.
+	}
+	LANCE{
+		Iniciativa: 1
+		Acerto: 8*ITEMRARITYLVL
+		Dano: 12%~15%*ITEMRARITYLVL
+		OBS: 1 ataque por rodada e ignora bloqueios e a defesa do oponente.
+	}
+}
+ASSASSIN{
+	DAGGERS{
+		Iniciativa: 5
+		Acerto: 12*ITEMRARITYLVL
+		Critico: 5*ITEMRARITYLVL
+		Dano: 3%~4%*ITEMRARITYLVL
+		OBS: 5 Ataque por rodada
+	}
+}
+SORCERER{
+	STAFF{
+		Iniciativa: 3
+		Acerto: 8*ITEMRARITYLVL
+		Dano: 15%~25%*ITEMRARITYLVL
+		OBS: 1 ataque por rodada, gasta 100% da mana para causar dano em todos os inimigo.
+	}
+	GRIMOIRE{
+		Aumenta a regeneração de energia em 25%*ITEMRARITYLVL.
+	}
+}
+PRIEST{
+	CROSS{
+		Iniciativa: 3
+		Acerto: 12*ITEMRARITYLVL
+		Dano: 15%~20%*ITEMRARITYLVL
+		OBS: 1 ataque por rodada, cura 5% da vida maxima de todos os aliados.
+	}
+}
+DRUID{
+	NATURE_ESSENCE{
+		Iniciativa: 4
+		Acerto: 12*ITEMRARITYLVL
+		Dano: 15%~20%*ITEMRARITYLVL
+		OBS: 1 ataque por rodada, cura 10% da vida perdida do alvo mais injuriado.
+	}
+}
+WARLOCK{
+	MAGIC_SWORD{
+		Iniciativa: 3
+		Acerto: 10*ITEMRARITYLVL
+		Dano: 5%~7%*ITEMRARITYLVL
+		OBS: Pode atacar enquanto possuir energia(Custo energia 7*ITEMRARITYLVL).
+	}
+}
+MONK{
+	BEER_MUG{
+		Iniciativa: 4
+		Acerto: 8*ITEMRARITYLVL
+		Dano: 2%~3%*ITEMRARITYLVL
+		OBS: Cada ataque tem 80% de chance de não gastar pontos de ataque podendo dar até 10 ataques por rodada.
+	}
+	STICK{
+		Iniciativa: 3
+		Acerto: 8*ITEMRARITYLVL
+		Dano: 12%~15%*ITEMRARITYLVL
+		OBS: 1 ataque por rodada com dano adicional baseado na vida perdida e na vida maxima (% da vida perdida*0.25* vida maxima).
+	}
+}
+PALADIN{
+	MACE{
+		Iniciativa: 2
+		Acerto: 10*ITEMRARITYLVL
+		Dano: 12%~15%*ITEMRARITYLVL
+		OBS: 1 ataque por rodada e possui 50% de chance de dar um ataque extra na rodada.
+	}
+	SHIELD{
+		Possui 7%*ITEMRARITYLVL de chance de bloquear 100% do dano recebido.
+	}
+}
+NINJA{
+	SHORT_SWORD{
+		Iniciativa: 1
+		Acerto: 10*ITEMRARITYLVL
+		Critico: 1*ITEMRARITYLVL
+		Dano: 15%~20%*ITEMRARITYLVL
+		OBS: 1 ataque por rodada, caso execute o alvo pode atacar de novo.
+	}
+}
+NECROMANCER{
+	DEMONIAC_SCYTHE{
+		Iniciativa: 4
+		Acerto: 12*ITEMRARITYLVL
+		Dano: 12%~15%*ITEMRARITYLVL
+		OBS: 1 ataque por rodada, causa dano adicional equivalente a 6% da propria vida perdida, e 6% da vida atual do alvo.
+	}
+	DEMONIAC_ORB{
+		Iniciativa: 3
+		Acerto: 10*ITEMRARITYLVL
+		Dano: 18%~20%*ITEMRARITYLVL
+		OBS: 1 ataque por rodada, consome 100% da mana para causar uma doença a todos os inimigos.
+	}
+}
+
+
+ACESSORIOS{
+Acerto
+Vida Maxima
+Reg de Vida
+Reg de Energia
+Dano Critico
+Roubo de Vida
+}
+
+Armaduras{
+	Pesada{
+		Evasão:1*ITEMRARITYLVL
+		Dano:2*ITEMRARITYLVL
+		Defesa:3*ITEMRARITYLVL
+	}
+	Leve{
+		Evasão:3*ITEMRARITYLVL
+		Dano:2*ITEMRARITYLVL
+		Defesa:1*ITEMRARITYLVL
+	}
+	Magica{
+		Evasão:2*ITEMRARITYLVL
+		Dano:3*ITEMRARITYLVL
+		Defesa:1*ITEMRARITYLVL
+	}
+}
