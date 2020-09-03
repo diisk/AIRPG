@@ -53,6 +53,7 @@ public class Battle {
 					for(Entity enn:ents) {
 						enn.roundRegen();
 					}
+					en.turnOn();
 				}
 			}
 			
