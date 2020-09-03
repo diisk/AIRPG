@@ -133,7 +133,7 @@ MONK{
 		Iniciativa: 4
 		Acerto: 8*ITEMRARITYLVL
 		Dano: 2%~3%*ITEMRARITYLVL
-		OBS: Cada ataque tem 80% de chance de não gastar pontos de ataque podendo dar até 10 ataques por rodada.
+		OBS: Cada ataque tem 80% de chance de não gastar pontos de ação podendo dar até 10 ataques por rodada.
 	}
 	STICK{
 		Iniciativa: 3

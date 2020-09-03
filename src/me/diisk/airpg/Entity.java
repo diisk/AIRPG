@@ -32,7 +32,6 @@ public class Entity implements Ordenable{
 	private double health;
 	private double energy = 0;
 	private int actionPoints;
-	private int attackPoints;
 	
 	private Race race;
 	private Classe classe;
@@ -107,7 +106,6 @@ public class Entity implements Ordenable{
 	}
 	
 	public void turnOn() {
-		attackPoints=100;
 		actionPoints=100;
 	}
 	
@@ -126,14 +124,69 @@ public class Entity implements Ordenable{
 		//FAZER AINDA
 	}
 	
-	public int useSkill() {
+	public boolean useSkill(Battle battle) {
 		Skill skill = Skill.DISARMED_PUNCH;
 		Item weapon = equipments[Slot.WEAPON.getID()];
 		if(weapon!=null) {
 			skill = weapon.getSkill();
 		}
-		
-		return 0;
+		if(energy>=skill.getEnergyCost()) {
+			if(actionPoints>=skill.getActionCost()) {
+				Entity target = null;
+				double ag1 = 0;
+				for(Entity e:aggroList.keySet()) {
+					if(target==null) {
+						target = e;
+						ag1 = aggroList.get(e);
+					}else {
+						double ag2 = aggroList.get(e);
+						if(ag2>ag1) {
+							target = e;
+							ag1 = ag2;
+						}
+					}
+				}
+				switch(skill) {
+				case ACCURATE_ATTACK:
+					break;
+				case BLOODTHIRSTY_ATTACK:
+					break;
+				case BLOODY_EATER:
+					break;
+				case CONTROL_ATTACK:
+					break;
+				case CURSED_BLADE:
+					break;
+				case DISARMED_PUNCH:
+					break;
+				case DISEASE_WAVE:
+					break;
+				case DRUNK_FIST:
+					break;
+				case ELETRIC_CHARGE:
+					break;
+				case FAST_ARROW:
+					break;
+				case FIREBALL:
+					break;
+				case FURIOUS_BLADES:
+					break;
+				case HALF_MOON_CUT:
+					break;
+				case ILUMINATED_FIELD:
+					break;
+				case PRECISE_SHOT:
+					break;
+				case SKULL_SMASH:
+					break;
+				case SPIRITUAL_SEED:
+					break;
+				case STAB:
+					break;		
+				}
+			}
+		}
+		return false;
 	}
 	
 	public void heal(Entity owner, double value, EffectType source) {

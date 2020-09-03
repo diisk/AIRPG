@@ -1,8 +1,10 @@
 package me.diisk.airpg;
 
+import java.util.Random;
+
 public enum Skill {
 	
-	DISARMED_PUNCH(0,"Soco Desarmado",0,0,"Causa 10 dano ao alvo.",100),
+	DISARMED_PUNCH(0,"Soco Desarmado",0,"Causa 10 dano ao alvo.",100),
 	PRECISE_SHOT(1,"Tiro Preciso",0.20,.25,"Causa dano bruto baseado no poder de ataque.",100),
 	FAST_ARROW(2,"Flecha Rápida",0.06,0.08,"Causa dano baseado no poder de ataque, podendo atacar até 3 vezes por rodada.",33),
 	BLOODTHIRSTY_ATTACK(3,"Ataque Sanguinário",0.07,0.13,"Causa dano baseado no poder de ataque até 2 vezes por rodada, e cada ataque possui 20% de chance de causar sangramento por 3 rodadas.",50),
@@ -24,23 +26,36 @@ public enum Skill {
 	//(,"",,,"",100),
 	;
 	
-	private Skill(int id, String name, double minDamage, double maxDamage, String description, int attackCost) {
+	private Skill(int id, String name, double minDamage, double maxDamage, String description, int actionCost) {
+		config(id, name, minDamage, maxDamage, description, actionCost, 0);
+	}
+	
+	private Skill(int id, String name, int baseDamage, String description, int actionCost) {
+		config(id, name, 0, 0, description, actionCost, baseDamage);
+	}
+	
+	private void config(int id, String name, double minDamage, double maxDamage, String description, int actionCost, int baseDamage) {
 		this.id=id;
 		this.name=name;
 		this.description=description;
 		this.minDamage=minDamage;
 		this.maxDamage=maxDamage;
-		this.attackCost=attackCost;
+		this.actionCost=actionCost;
+		this.baseDamage = baseDamage;
 	}
 	
 	private String name;
 	private String description;
 	private double minDamage;
 	private double maxDamage;
+	private double baseDamage;
 	private int energyCost;
 	private int actionCost;
-	private int attackCost;
 	private int id;
+	
+	public static final int USESKILL_NO_ENERGY = 0;
+	public static final int USESKILL_NO_ACTIONPOINTS = 1;
+	public static final int USESKILL_SUCCESS = 2;
 	
 	public int getID() {
 		return id;
@@ -48,6 +63,18 @@ public enum Skill {
 	
 	public String getName() {
 		return name;
+	}
+	
+	public double getRandomDamage() {
+		Random rand = new Random();
+		double variation = 1000;
+		int min = (int) (minDamage*variation);
+		int max = (int) (maxDamage*variation);
+		return (min+(rand.nextInt(max-min+1)))/variation;
+	}
+	
+	public double getBaseDamage() {
+		return baseDamage;
 	}
 	
 	public String getDescription() {
@@ -60,10 +87,6 @@ public enum Skill {
 	
 	public int getActionCost() {
 		return actionCost;
-	}
-	
-	public int getAttackCost() {
-		return attackCost;
 	}
 	
 }

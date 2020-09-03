@@ -1,6 +1,6 @@
 package me.diisk.airpg;
 
-import java.io.ObjectInputStream.GetField;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
@@ -10,6 +10,7 @@ public class Battle {
 
 	private Team team1,team2;
 	private int maxRounds;
+	private List<String> logLines = new ArrayList<String>();
 	
 	
 	private Battle(Team team1, Team team2) {
@@ -29,6 +30,14 @@ public class Battle {
 		}
 	}
 	
+	public Team getEnemiesFor(Team team) {
+		if(team.equals(team1)) {
+			return team2;
+		}else {
+			return team1;
+		}
+	}
+	
 	public CustomList<Entity> getEntities(){
 		CustomList<Entity> cl = new CustomList<Entity>();
 		for(Entity m:team1.getAllMembers()) {
@@ -40,24 +49,35 @@ public class Battle {
 		return cl;
 	}
 	
+	public void addLogLine(String line) {
+		logLines.add(line);
+	}
+	
+	public List<String> getLogLines() {
+		return logLines;
+	}
+	
 	public static Battle fight(Team team1, Team team2) {
 		Battle battle = new Battle(team1, team2);
 		int round = 0;
 		CustomList<Entity> entities = battle.getEntities();
 		entities.orderBy(Entity.ORDER_BY_INITIATIVE, false, true);
 		List<Entity> ents = entities.toList();
-		while(!team1.isAllDead() && !team2.isAllDead() && round<battle.maxRounds) {
+		all:
+		while(true) {
 			for(Entity en:ents) {
+				if(team1.isAllDead() || team2.isAllDead() || round>=battle.maxRounds) {
+					break all;
+				}
 				if(!en.isDead()) {
 					round++;
 					for(Entity enn:ents) {
 						enn.roundRegen();
 					}
 					en.turnOn();
+					while(en.useSkill(battle));
 				}
 			}
-			
-			
 		}
 		return battle;
 	}
