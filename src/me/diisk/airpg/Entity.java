@@ -5,7 +5,9 @@ import me.diisk.airpg.Item.Slot;
 
 import static me.diisk.airpg.Attributes.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Random;
 
 import me.diisk.airpg.Battle.LogLine;
@@ -39,6 +41,7 @@ public class Entity implements Ordenable{
 	private Classe classe;
 	
 	private Item[] equipments = new Item[EQUIPMENTS_LENGTH];
+	private List<Effect> effects = new ArrayList<Effect>();
 	
 	public Entity(String name, Race race, Classe classe) {
 		this.name=name;
@@ -46,7 +49,14 @@ public class Entity implements Ordenable{
 		this.classe=classe;
 	}
 	
+	public List<Effect> getEffects() {
+		return effects;
+	}
+	
 	public void respawn() {
+		effects.clear();
+		applyEffect(new Effect(this, race.getPassive()));
+		applyEffect(new Effect(this, classe.getPassive()));
 		aggroList.clear();
 		attributes = race.getAttributes();
 		Attributes mods = classe.getMods();
@@ -135,7 +145,139 @@ public class Entity implements Ordenable{
 	}
 	
 	public void applyEffect(Effect effect) {
-		//FAZER AINDA
+		EffectType type = effect.getType();
+		List<Effect> efs = getEffectsBy(type);
+		Effect eff = null;
+		if(efs.size()>0) {
+			efs = getEffectsBy(effect.getOwner(), type);
+			if(efs.size()>0) {
+				if(type.isUnique()) {
+					eff = efs.get(0);
+				}
+			}else {
+				if(!type.isDuplicate()) {
+					if(type.isUnique()) {
+						eff = getEffectsBy(type).get(0);
+					}
+				}
+			}
+		}
+		if(eff==null) {
+			int id = -1;
+			for(int i=0;i<effects.size();i++) {
+				Effect e = effects.get(i);
+				if(e.getID()>id) {
+					id=e.getID();
+				}
+			}
+			id++;
+			System.out.println("TESTE ID:"+id);
+			for(int i=0;i<id;i++) {
+				Effect e = getEffectBy(id);
+				if(e==null) {
+					break;
+				}
+			}
+			effect.setID(id);
+			effects.add(effect);
+		}else {
+			switch(type.getCategory()) {
+			case EffectType.TIME_ADD_AND_VALUE_ADD:
+				eff.setOwner(effect.getOwner());
+				eff.setRounds(eff.getRounds()+effect.getRounds());
+				eff.addValues(effect.getValues());
+				break;
+			case EffectType.TIME_ADD_AND_VALUE_NOTHING:
+				eff.setOwner(effect.getOwner());
+				eff.setRounds(eff.getRounds()+effect.getRounds());
+				break;
+			case EffectType.TIME_ADD_AND_VALUE_RESET:
+				eff.setOwner(effect.getOwner());
+				eff.setRounds(eff.getRounds()+effect.getRounds());
+				eff.setValues(effect.getValues());
+				break;
+			case EffectType.TIME_NOTHING_AND_VALUE_ADD:
+				eff.setOwner(effect.getOwner());
+				eff.addValues(effect.getValues());
+				break;
+			case EffectType.TIME_NOTHING_AND_VALUE_RESET:
+				eff.setOwner(effect.getOwner());
+				eff.setValues(effect.getValues());
+				break;
+			case EffectType.TIME_RESET_AND_VALUE_ADD:
+				eff.setOwner(effect.getOwner());
+				eff.setRounds(effect.getRounds());
+				eff.addValues(effect.getValues());
+				break;
+			case EffectType.TIME_RESET_AND_VALUE_NOTHING:
+				eff.setOwner(effect.getOwner());
+				eff.setRounds(effect.getRounds());
+				break;
+			case EffectType.TIME_RESET_AND_VALUE_RESET:
+				eff.setOwner(effect.getOwner());
+				eff.setRounds(effect.getRounds());
+				eff.setValues(effect.getValues());
+				break;
+			}
+		}
+	}
+	
+	public List<Effect> getEffectsBy(Entity owner, EffectType type){
+		List<Effect> r = new ArrayList<Effect>();
+		for(Effect e:effects) {
+			if(e.getOwner().equals(owner) && type == e.getType()) {
+				r.add(e);
+			}
+		}
+		return r;
+	}
+	
+	public List<Effect> getEffectsBy(Entity owner){
+		List<Effect> r = new ArrayList<Effect>();
+		for(Effect e:effects) {
+			if(e.getOwner().equals(owner)) {
+				r.add(e);
+			}
+		}
+		return r;
+	}
+	
+	public List<Effect> getEffectsBy(EffectType type){
+		List<Effect> r = new ArrayList<Effect>();
+		for(Effect e:effects) {
+			if(type == e.getType()) {
+				r.add(e);
+			}
+		}
+		return r;
+	}
+	
+	public void removeEffect(int id) {
+		for(int i=0;i<effects.size();i++) {
+			Effect e = effects.get(i);
+			if(e.getID()==id) {
+				effects.remove(i);
+				break;
+			}
+		}
+	}
+	
+	public boolean containsEffect(EffectType type) {
+		for(Effect e:effects) {
+			if(e.getType()==type) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public Effect getEffectBy(int id) {
+		for(Effect e:effects) {
+			if(e.getID()==id) {
+				return e;
+			}
+		}
+		return null;
 	}
 	
 	public boolean useSkill(Battle battle) {
@@ -264,6 +406,15 @@ public class Entity implements Ordenable{
 			battle.addLogLine(translateMessage(killer.getLogName(), name, "", damageSource.getDeathMessage()));
 		}
 		health=0;
+		List<Effect> es = getEffectsBy(EffectType.UNDEAD);
+		if(es.size()>0) {
+			Effect e = es.get(0);
+			if(chance(e.getValues()[0])) {
+				e.setValue(0, e.getValues()[0]/2);
+				health = getMaxHealth()*e.getValues()[1];
+				battle.addLogLine(translateMessage(name, "", "", e.getType().getUsageMessage()));
+			}
+		}
 	}
 	
 	public void setTeam(Team team) {
