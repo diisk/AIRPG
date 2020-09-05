@@ -8,10 +8,12 @@ import static me.diisk.airpg.Attributes.*;
 import java.util.HashMap;
 import java.util.Random;
 
-import me.diisk.airpg.CustomList.CustomList;
+import me.diisk.airpg.Battle.LogLine;
 import me.diisk.airpg.CustomList.Ordenable;
 import me.diisk.airpg.Effect.Effect;
 import me.diisk.airpg.Effect.EffectType;
+
+import static me.diisk.airpg.Utils.*;
 
 public class Entity implements Ordenable{
 
@@ -58,7 +60,7 @@ public class Entity implements Ordenable{
 				
 			}
 			if(i==ENERGY_REGENERATION||i==HEALTH_REGENERATION) {
-				attributes.multiply(i, mod);
+				attributes.multiply(i, 1+mod);
 			}else {
 				attributes.add(i, mod);
 			}
@@ -87,6 +89,18 @@ public class Entity implements Ordenable{
 	
 	private double getEnergyRegen() {
 		return attributes.get(ENERGY_REGENERATION);
+	}
+	
+	public double getAttackPower() {
+		return attributes.get(ATTACK_POWER);
+	}
+	
+	public double getCriticalChance() {
+		return attributes.get(CRITICAL_CHANCE);
+	}
+	
+	public int getDefense() {
+		return (int) (attributes.get(DEFENSE)*1);
 	}
 	
 	private double getHealthRegen() {
@@ -132,69 +146,124 @@ public class Entity implements Ordenable{
 		}
 		if(energy>=skill.getEnergyCost()) {
 			if(actionPoints>=skill.getActionCost()) {
+				energy-=skill.getEnergyCost();
+				actionPoints-=skill.getActionCost();
 				Entity target = null;
 				double ag1 = 0;
 				for(Entity e:aggroList.keySet()) {
-					if(target==null) {
-						target = e;
-						ag1 = aggroList.get(e);
-					}else {
-						double ag2 = aggroList.get(e);
-						if(ag2>ag1) {
+					if(!e.isDead()) {
+						if(target==null) {
 							target = e;
-							ag1 = ag2;
+							ag1 = aggroList.get(e);
+						}else {
+							double ag2 = aggroList.get(e);
+							if(ag2>ag1) {
+								target = e;
+								ag1 = ag2;
+							}
 						}
 					}
 				}
-				switch(skill) {
-				case ACCURATE_ATTACK:
-					break;
-				case BLOODTHIRSTY_ATTACK:
-					break;
-				case BLOODY_EATER:
-					break;
-				case CONTROL_ATTACK:
-					break;
-				case CURSED_BLADE:
-					break;
-				case DISARMED_PUNCH:
-					break;
-				case DISEASE_WAVE:
-					break;
-				case DRUNK_FIST:
-					break;
-				case ELETRIC_CHARGE:
-					break;
-				case FAST_ARROW:
-					break;
-				case FIREBALL:
-					break;
-				case FURIOUS_BLADES:
-					break;
-				case HALF_MOON_CUT:
-					break;
-				case ILUMINATED_FIELD:
-					break;
-				case PRECISE_SHOT:
-					break;
-				case SKULL_SMASH:
-					break;
-				case SPIRITUAL_SEED:
-					break;
-				case STAB:
-					break;		
+				if(target!=null) {
+					switch(skill) {
+					case ACCURATE_ATTACK:
+						break;
+					case BLOODTHIRSTY_ATTACK:
+						break;
+					case BLOODY_EATER:
+						break;
+					case CONTROL_ATTACK:
+						break;
+					case CURSED_BLADE:
+						break;
+					case DISARMED_PUNCH:
+						break;
+					case DISEASE_WAVE:
+						break;
+					case DRUNK_FIST:
+						break;
+					case ELETRIC_CHARGE:
+						break;
+					case FAST_ARROW:
+						break;
+					case FIREBALL:
+						break;
+					case FURIOUS_BLADES:
+						break;
+					case HALF_MOON_CUT:
+						break;
+					case ILUMINATED_FIELD:
+						break;
+					case PRECISE_SHOT:
+						break;
+					case SKULL_SMASH:
+						break;
+					case SPIRITUAL_SEED:
+						break;
+					case STAB:
+						break;		
+					}
+					target.damage(this, skill, battle);
+					return true;
 				}
 			}
 		}
 		return false;
 	}
 	
-	public void heal(Entity owner, double value, EffectType source) {
+	public String getName() {
+		return name;
+	}
+	
+	public void heal(Entity owner, EffectType source) {
 		
 	}
 	
-	public void damage(Entity damager, double value, EffectType source) {
+	public String getLogName() {
+		return "("+(int)health+"/"+getMaxHealth()+")"+name;
+	}
+	
+	public static void main(String[] args) {
+		Team team1 = new Team(new Entity("Teste1", Race.ABYSSAL, Classe.ARCHER));
+		Team team2 = new Team(new Entity("Teste2", Race.ABYSSAL, Classe.ARCHER));
+		Battle battle = Battle.fight(team1, team2);
+		for(LogLine ll:battle.getLogLines()) {
+			if(!ll.isCanceled()) {
+				System.out.println(ll.getMessage());
+			}
+		}
+		Team winners = battle.getWinners();
+		if(winners!=null) {
+			String w = "Os vencedores são: ";
+			for(Entity e:winners.getAllMembers()) {
+				w+=e.getName()+",";
+			}
+			System.out.println(w);
+		}else {
+			System.out.println("EMPATOU");
+		}
+	}
+	
+	public void damage(Entity owner, DamageSource damageSource, Battle battle) {
+		Damage damage = new Damage(owner, this, damageSource);
 		
+		if(!damage.isCanceled()) {
+			LogLine ll = battle.addLogLine(translateMessage(owner.getLogName(), getLogName(), ((int)damage.getFinalDamage())+"", damageSource.getDamageMessage()));
+			health-=damage.getFinalDamage();
+			if(health<=0) {
+				ll.cancel();
+				die(owner,damageSource,battle);
+			}
+		}
+	}
+	
+	private void die(Entity killer, DamageSource damageSource,Battle battle) {
+		if(killer.equals(this)) {
+			battle.addLogLine(translateMessage(name, "", "", damageSource.getSuicideMessage()));
+		}else {
+			battle.addLogLine(translateMessage(killer.getLogName(), name, "", damageSource.getDeathMessage()));
+		}
+		health=0;
 	}
 	
 	public void setTeam(Team team) {

@@ -8,9 +8,30 @@ import me.diisk.airpg.CustomList.CustomList;
 
 public class Battle {
 
+	public class LogLine{
+		private String message;
+		private boolean canceled = false;
+		
+		public LogLine(String message) {
+			this.message = message;
+		}
+		
+		public String getMessage() {
+			return message;
+		}
+		
+		public void cancel() {
+			canceled = true;
+		}
+		
+		public boolean isCanceled() {
+			return canceled;
+		}
+	}
+	
 	private Team team1,team2;
 	private int maxRounds;
-	private List<String> logLines = new ArrayList<String>();
+	private List<LogLine> logLines = new ArrayList<LogLine>();
 	
 	
 	private Battle(Team team1, Team team2) {
@@ -49,11 +70,25 @@ public class Battle {
 		return cl;
 	}
 	
-	public void addLogLine(String line) {
-		logLines.add(line);
+	public LogLine addLogLine(String line) {
+		LogLine ll = new LogLine(line);
+		logLines.add(ll);
+		return ll;
 	}
 	
-	public List<String> getLogLines() {
+	public Team getWinners() {
+		if((team1.isAllDead() && team2.isAllDead()) || (!team1.isAllDead() && !team2.isAllDead())) {
+			return null;
+		}else {
+			if(team1.isAllDead()) {
+				return team2;
+			}else {
+				return team1;
+			}
+		}
+	}
+	
+	public List<LogLine> getLogLines() {
 		return logLines;
 	}
 	
@@ -70,7 +105,11 @@ public class Battle {
 					break all;
 				}
 				if(!en.isDead()) {
+					if(round>0) {
+						battle.addLogLine("Fim do Round");
+					}
 					round++;
+					battle.addLogLine("Iniciando Round "+round+":");
 					for(Entity enn:ents) {
 						enn.roundRegen();
 					}

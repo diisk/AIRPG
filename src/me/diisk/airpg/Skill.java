@@ -2,9 +2,9 @@ package me.diisk.airpg;
 
 import java.util.Random;
 
-public enum Skill {
+public enum Skill implements DamageSource{
 	
-	DISARMED_PUNCH(0,"Soco Desarmado",0,"Causa 10 dano ao alvo.",100),
+	DISARMED_PUNCH(0,"Soco Desarmado",10,"Causa 10 dano ao alvo.",100),
 	PRECISE_SHOT(1,"Tiro Preciso",0.20,.25,"Causa dano bruto baseado no poder de ataque.",100),
 	FAST_ARROW(2,"Flecha Rápida",0.06,0.08,"Causa dano baseado no poder de ataque, podendo atacar até 3 vezes por rodada.",33),
 	BLOODTHIRSTY_ATTACK(3,"Ataque Sanguinário",0.07,0.13,"Causa dano baseado no poder de ataque até 2 vezes por rodada, e cada ataque possui 20% de chance de causar sangramento por 3 rodadas.",50),
@@ -65,18 +65,6 @@ public enum Skill {
 		return name;
 	}
 	
-	public double getRandomDamage() {
-		Random rand = new Random();
-		double variation = 1000;
-		int min = (int) (minDamage*variation);
-		int max = (int) (maxDamage*variation);
-		return (min+(rand.nextInt(max-min+1)))/variation;
-	}
-	
-	public double getBaseDamage() {
-		return baseDamage;
-	}
-	
 	public String getDescription() {
 		return description;
 	}
@@ -87,6 +75,151 @@ public enum Skill {
 	
 	public int getActionCost() {
 		return actionCost;
+	}
+
+	@Override
+	public double getStartDamage(Entity owner, Entity target) {
+		double r = baseDamage;
+		Random random = new Random();
+		double variation = 1000;
+		r+=owner.getAttackPower()*((variation*minDamage)+(random.nextInt((int)(variation*(maxDamage-minDamage)+1))))/variation;
+		return r;
+	}
+
+	@Override
+	public String getDeathMessage() {
+		switch(this) {
+		case ACCURATE_ATTACK:
+			break;
+		case BLOODTHIRSTY_ATTACK:
+			break;
+		case BLOODY_EATER:
+			break;
+		case CONTROL_ATTACK:
+			break;
+		case CURSED_BLADE:
+			break;
+		case DISARMED_PUNCH:
+			return "@owner desintegrou @target com um tapão.";
+		case DISEASE_WAVE:
+			break;
+		case DRUNK_FIST:
+			break;
+		case ELETRIC_CHARGE:
+			break;
+		case FAST_ARROW:
+			break;
+		case FIREBALL:
+			break;
+		case FURIOUS_BLADES:
+			break;
+		case HALF_MOON_CUT:
+			break;
+		case ILUMINATED_FIELD:
+			break;
+		case PRECISE_SHOT:
+			break;
+		case SKULL_SMASH:
+			break;
+		case SPIRITUAL_SEED:
+			break;
+		case STAB:
+			break;
+		default:
+			break;
+		
+		}
+		return "@owner fumou @target na porrada.";
+	}
+
+	@Override
+	public String getDamageMessage() {
+		switch(this) {
+		case ACCURATE_ATTACK:
+			break;
+		case BLOODTHIRSTY_ATTACK:
+			break;
+		case BLOODY_EATER:
+			break;
+		case CONTROL_ATTACK:
+			break;
+		case CURSED_BLADE:
+			break;
+		case DISARMED_PUNCH:
+			return "@owner deu um soquinho em @target e causou @damage de dano.";
+		case DISEASE_WAVE:
+			break;
+		case DRUNK_FIST:
+			break;
+		case ELETRIC_CHARGE:
+			break;
+		case FAST_ARROW:
+			break;
+		case FIREBALL:
+			break;
+		case FURIOUS_BLADES:
+			break;
+		case HALF_MOON_CUT:
+			break;
+		case ILUMINATED_FIELD:
+			break;
+		case PRECISE_SHOT:
+			break;
+		case SKULL_SMASH:
+			break;
+		case SPIRITUAL_SEED:
+			break;
+		case STAB:
+			break;
+		default:
+			break;
+		}
+		return "@owner deu um porradão em @target e causou @damage de dano.";
+	}
+
+	@Override
+	public String getSuicideMessage() {
+		switch(this) {
+		case ACCURATE_ATTACK:
+			break;
+		case BLOODTHIRSTY_ATTACK:
+			break;
+		case BLOODY_EATER:
+			break;
+		case CONTROL_ATTACK:
+			break;
+		case CURSED_BLADE:
+			break;
+		case DISARMED_PUNCH:
+			break;
+		case DISEASE_WAVE:
+			break;
+		case DRUNK_FIST:
+			break;
+		case ELETRIC_CHARGE:
+			break;
+		case FAST_ARROW:
+			break;
+		case FIREBALL:
+			break;
+		case FURIOUS_BLADES:
+			break;
+		case HALF_MOON_CUT:
+			break;
+		case ILUMINATED_FIELD:
+			break;
+		case PRECISE_SHOT:
+			break;
+		case SKULL_SMASH:
+			break;
+		case SPIRITUAL_SEED:
+			break;
+		case STAB:
+			break;
+		default:
+			break;
+		}
+		return "@owner se matou, não sei como.";
 	}
 	
 }

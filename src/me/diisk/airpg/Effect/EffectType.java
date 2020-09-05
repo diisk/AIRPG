@@ -1,6 +1,9 @@
 package me.diisk.airpg.Effect;
 
-public enum EffectType{
+import me.diisk.airpg.DamageSource;
+import me.diisk.airpg.Entity;
+
+public enum EffectType implements DamageSource{
 
 	
 	//RAÇAS
@@ -64,6 +67,30 @@ public enum EffectType{
 	
 	public int getID() {
 		return id;
+	}
+
+	@Override
+	public double getStartDamage(Entity owner, Entity target) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public String getDeathMessage() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getDamageMessage() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public String getSuicideMessage() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

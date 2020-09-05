@@ -1,8 +1,6 @@
 package me.diisk.airpg;
 
-import java.util.Random;
-
-public class Teste {
+public class Utils {
 
 	public static boolean chance(double chance) {
 		return Math.random()<chance;
@@ -19,6 +17,14 @@ public class Teste {
 			return defense/224.0;
 		}
 		return 0;
+	}
+	
+	public static String translateMessage(String owner, String target, String damage, String message) {
+		String r = message;
+		r = r.replaceAll("@owner", owner);
+		r = r.replaceAll("@target", target);
+		r = r.replaceAll("@damage", damage);
+		return r;
 	}
 	
 	public static void main(String[] args) {
