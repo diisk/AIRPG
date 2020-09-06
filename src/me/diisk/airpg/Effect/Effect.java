@@ -22,7 +22,10 @@ public class Effect {
 		this.owner=  owner;
 		this.rounds = rounds;
 		this.type = type;
-		this.values = values;
+		this.values = new double[values.length];
+		for(int i=0;i<values.length;i++) {
+			this.values[i]=values[i];
+		}
 	}
 	
 	public Entity getOwner() {

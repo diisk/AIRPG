@@ -83,8 +83,9 @@ public class Entity implements Ordenable{
 	//TESTE
 	
 	public void addAggroFor(Entity target, double value) {
-		if(aggroList.containsKey(target)) {
-			aggroList.replace(target, value);
+		double a = getAggroFor(target);
+		if(a>0) {
+			aggroList.replace(target, getAggroFor(target)+value);
 		}else {
 			aggroList.put(target, value);
 		}
@@ -97,12 +98,26 @@ public class Entity implements Ordenable{
 		return 0;
 	}
 	
+	public double getValuesOf(int pos, EffectType type) {
+		double r = 0;
+		for(Effect e:getEffectsBy(type)) {
+			r+=e.getValues()[pos];
+		}
+		return r;
+	}
+	
 	private double getEnergyRegen() {
 		return attributes.get(ENERGY_REGENERATION);
 	}
 	
 	public double getAttackPower() {
 		return attributes.get(ATTACK_POWER);
+	}
+	
+	public double getLifeSteal() {
+		double r = attributes.get(LIFE_STEAL);
+		r*=1+getValuesOf(0, EffectType.BLOODSUCKER);
+		return r;
 	}
 	
 	public double getCriticalChance() {
@@ -117,11 +132,11 @@ public class Entity implements Ordenable{
 		return attributes.get(HEALTH_REGENERATION);
 	}
 	
-	private int getMaxHealth() {
+	public int getMaxHealth() {
 		return (int) (attributes.get(MAX_HEALTH)*1);
 	}
 	
-	private int getMaxEnergy() {
+	public int getMaxEnergy() {
 		return (int) (attributes.get(MAX_ENERGY)*1);
 	}
 	
@@ -171,7 +186,6 @@ public class Entity implements Ordenable{
 				}
 			}
 			id++;
-			System.out.println("TESTE ID:"+id);
 			for(int i=0;i<id;i++) {
 				Effect e = getEffectBy(id);
 				if(e==null) {
@@ -366,8 +380,8 @@ public class Entity implements Ordenable{
 	}
 	
 	public static void main(String[] args) {
-		Team team1 = new Team(new Entity("Teste1", Race.ABYSSAL, Classe.ARCHER));
-		Team team2 = new Team(new Entity("Teste2", Race.ABYSSAL, Classe.ARCHER));
+		Team team1 = new Team(new Entity("Teste1", Race.HALF_DRAGON, Classe.ARCHER));
+		Team team2 = new Team(new Entity("Teste2", Race.AUTOMATO, Classe.ARCHER));
 		Battle battle = Battle.fight(team1, team2);
 		for(LogLine ll:battle.getLogLines()) {
 			if(!ll.isCanceled()) {
@@ -390,11 +404,36 @@ public class Entity implements Ordenable{
 		Damage damage = new Damage(owner, this, damageSource);
 		
 		if(!damage.isCanceled()) {
+			if(owner.containsEffect(EffectType.DRAGON_CLAW)) {
+				damage.addAdditionalDamage(EffectType.DRAGON_CLAW.getStartDamage(owner, this));
+			}
+			if(owner.containsEffect(EffectType.CORRUPTION)) {
+				damage.addAdditionalDamage(EffectType.CORRUPTION.getValues()[0]*damage.getFinalDamage());
+			}
 			LogLine ll = battle.addLogLine(translateMessage(owner.getLogName(), getLogName(), ((int)damage.getFinalDamage())+"", damageSource.getDamageMessage()));
+			for(Entity e:team.getAllMembers()) {
+				double a = damage.getFinalDamage();
+				if(e.equals(this)) {
+					a*=1.5;//ALTERAR SE PRECISAR AGGRO
+				}
+				e.addAggroFor(owner, a);
+			}
 			health-=damage.getFinalDamage();
+			if(owner.getLifeSteal()>0) {
+				owner.health+=damage.getFinalDamage()*(owner.getLifeSteal()/100);
+				if(owner.health>owner.getMaxHealth()) {
+					owner.health=owner.getMaxHealth();
+				}
+			}
 			if(health<=0) {
 				ll.cancel();
 				die(owner,damageSource,battle);
+			}else {
+				if(containsEffect(EffectType.ELETRIC_ARMOR)) {
+					if(chance(EffectType.ELETRIC_ARMOR.getValues()[0])) {
+						owner.damage(this, EffectType.ELETRIC_ARMOR, battle);
+					}
+				}
 			}
 		}
 	}
@@ -405,16 +444,18 @@ public class Entity implements Ordenable{
 		}else {
 			battle.addLogLine(translateMessage(killer.getLogName(), name, "", damageSource.getDeathMessage()));
 		}
-		health=0;
 		List<Effect> es = getEffectsBy(EffectType.UNDEAD);
 		if(es.size()>0) {
 			Effect e = es.get(0);
 			if(chance(e.getValues()[0])) {
-				e.setValue(0, e.getValues()[0]/2);
+				e.setValue(0, e.getValues()[0]*0.5);
+				
 				health = getMaxHealth()*e.getValues()[1];
 				battle.addLogLine(translateMessage(name, "", "", e.getType().getUsageMessage()));
+				return;
 			}
 		}
+		health=0;
 	}
 	
 	public void setTeam(Team team) {

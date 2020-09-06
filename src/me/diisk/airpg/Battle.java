@@ -33,23 +33,6 @@ public class Battle {
 	private int maxRounds;
 	private List<LogLine> logLines = new ArrayList<LogLine>();
 	
-	public static void main(String[] args) {
-		Team t1 = new Team(new Entity("Teste1", Race.UNDEAD, Classe.ARCHER));
-		Team t2 = new Team(new Entity("Teste2", Race.UNDEAD, Classe.ARCHER));
-		Battle battle = fight(t1, t2);
-		CustomList<Entity> ents = battle.getEntities();
-		for(int i=0;i<ents.size();i++) {
-			Entity en = ents.get(i);
-			//System.out.println(en.getEffects().size());
-		}
-		for(LogLine ll:battle.getLogLines()) {
-			if(!ll.isCanceled()) {
-				System.out.println(ll.getMessage());
-			}
-			
-		}
-	}
-	
 	private Battle(Team team1, Team team2) {
 		this.team1=team1;
 		this.team2=team2;

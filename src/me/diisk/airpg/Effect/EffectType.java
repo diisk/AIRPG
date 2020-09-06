@@ -12,7 +12,7 @@ public enum EffectType implements DamageSource{
 			1,
 			0.3
 			}),
-	LUCKY(1,"Sortudo","Possui mais 25% de chance em todos os testes.",
+	LUCKY(1,"Sortudo","Possui mais 25% de chance em todos os testes.",//FAZER
 			new double[] {
 					0.25
 			}),
@@ -29,7 +29,7 @@ public enum EffectType implements DamageSource{
 					0.25,
 					0.5
 			}),
-	HEALER(5,"Curandeiro","Todas as habilidades de cura são 100% mais efetivas.",
+	HEALER(5,"Curandeiro","Todas as habilidades de cura são 100% mais efetivas.",//FAZER
 			new double[] {
 					1
 			}),
@@ -212,25 +212,45 @@ public enum EffectType implements DamageSource{
 
 	@Override
 	public double getStartDamage(Entity owner, Entity target) {
-		// TODO Auto-generated method stub
+		switch(this){
+		case DRAGON_CLAW:
+			return values[0]*target.getMaxHealth();
+		case ELETRIC_ARMOR:
+			return values[1]*owner.getDefense();
+		}
 		return 0;
 	}
 
 	@Override
 	public String getDeathMessage() {
-		// TODO Auto-generated method stub
+		switch(this){
+		case DRAGON_CLAW:
+			return "@owner rasgou @target com sua garra de dragão.";
+		case ELETRIC_ARMOR:
+			return "@owner desintegrou @target com um choquinho.";
+		}
 		return null;
 	}
 
 	@Override
 	public String getDamageMessage() {
-		// TODO Auto-generated method stub
+		switch(this){
+		case DRAGON_CLAW:
+			return "@owner causou @damage de dano a @target com sua garra de dragão.";
+		case ELETRIC_ARMOR:
+			return "@owner causou @damage de dano a @target com um choquinho.";
+		}
 		return null;
 	}
 
 	@Override
 	public String getSuicideMessage() {
-		// TODO Auto-generated method stub
+		switch(this){
+		case DRAGON_CLAW:
+			return "@owner morreu tentando se masturbar com sua garra de dragão..";
+		case ELETRIC_ARMOR:
+			return "@owner se queimou vestindo a roupinha eletrica.";
+		}
 		return null;
 	}
 	

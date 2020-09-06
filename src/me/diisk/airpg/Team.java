@@ -11,6 +11,7 @@ public class Team {
 	
 	public Team(Entity leader) {
 		this.leader = leader;
+		leader.setTeam(this);
 	}
 	
 	public List<Entity> getMembers() {
@@ -42,6 +43,7 @@ public class Team {
 	
 	public void addMember(Entity member) {
 		members.add(member);
+		member.setTeam(this);
 	}
 	
 	public Entity getLeader() {
