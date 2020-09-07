@@ -6,8 +6,8 @@ import me.diisk.airpg.Entity;
 public enum EffectType implements DamageSource{
 
 	
-	//RA«AS
-	UNDEAD(0,"Morto-Vivo","Ao morrer possui 100% de chance de renascer com 30% da vida maxima no mesmo turno, a chance È reduzida pela metade em cada morte.",
+	//RA√áAS
+	UNDEAD(0,"Morto-Vivo","Ao morrer possui 100% de chance de renascer com 30% da vida maxima no mesmo turno, a chance √© reduzida pela metade em cada morte.",
 			new double[] {
 			1,
 			0.3
@@ -16,11 +16,11 @@ public enum EffectType implements DamageSource{
 			new double[] {
 					0.25
 			}),
-	BLOODSUCKER(2,"Chupador de Sangue","Todo roubo de vida È dobrado.",
+	BLOODSUCKER(2,"Chupador de Sangue","Todo roubo de vida √© dobrado.",
 			new double[] {
 					1
 			}),
-	DRAGON_CLAW(3,"Garra de Drag„o","Seus ataques causam dano adicional equivalente a 2% da vida m·xima do alvo.",
+	DRAGON_CLAW(3,"Garra de Drag√£o","Seus ataques causam dano adicional equivalente a 2% da vida m√°xima do alvo.",
 			new double[] {
 					0.02
 			}),
@@ -29,36 +29,36 @@ public enum EffectType implements DamageSource{
 					0.25,
 					0.5
 			}),
-	HEALER(5,"Curandeiro","Todas as habilidades de cura s„o 100% mais efetivas.",//FAZER
+	HEALER(5,"Curandeiro","Todas as habilidades de cura s√£o 100% mais efetivas.",//FAZER
 			new double[] {
 					1
 			}),
-	CORRUPTION(6,"CorrupÁ„o","Todas as habilidades de ataque causam 20% mais dano.",
+	CORRUPTION(6,"Corrup√ß√£o","Todas as habilidades de ataque causam 20% mais dano.",
 			new double[] {
 					0.2
 			}),
-	SACRIFICE(7,"Sacrificio","Seus ataques possuem 20% de chance de consumir 5% da propria vida m·xima para causar dano dobrado.",
+	SACRIFICE(7,"Sacrificio","Seus ataques possuem 20% de chance de consumir 5% da propria vida m√°xima para causar dano dobrado.",
 			new double[] {
 					0.2,
 					0.05
 			}),
-	DIVINE_DANCER(8,"DanÁarino Divino","Sua evas„o È dobrada.",
+	DIVINE_DANCER(8,"Dan√ßarino Divino","Sua evas√£o √© dobrada.",
 			new double[] {
 				1	
 			}),
-	ELDER(9,"Anci„o","Sua vida m·xima È dobrada.",
+	ELDER(9,"Anci√£o","Sua vida m√°xima √© dobrada.",
 			new double[] {
 					1
 			}),
-	LIZARD_BLOOD(10,"Sangue de Lagarto","Sua regeneraÁ„o de vida È dobrada.",
+	LIZARD_BLOOD(10,"Sangue de Lagarto","Sua regenera√ß√£o de vida √© dobrada.",
 			new double[] {
 					1
 			}),
-	PREDATOR(11,"Predador","Seus ataques crÌticos causam 50% mais dano.",
+	PREDATOR(11,"Predador","Seus ataques cr√≠ticos causam 50% mais dano.",
 			new double[] {
 					0.5
 			}),
-	DARK_POWER(12,"Poder Sombrio","Aumenta toda cura recebida em 50% alÈm de ignorar as defesas do inimigo.",
+	DARK_POWER(12,"Poder Sombrio","Aumenta toda cura recebida em 50% al√©m de ignorar as defesas do inimigo.",
 			new double[] {
 					0.5
 			}),
@@ -66,55 +66,55 @@ public enum EffectType implements DamageSource{
 			new double[] {
 					0.8
 			}),
-	ENERGY_STEALER(14,"Ladr„o de Energia","Seus ataques absorvem 10% da energia atual do alvo, e a transforma em um escudo atÈ o inicio do seu proximo turno.",
+	ENERGY_STEALER(14,"Ladr√£o de Energia","Seus ataques absorvem 10% da energia atual do alvo, e a transforma em um escudo at√© o inicio do seu proximo turno.",
 			new double[] {
 					0.1
 			}),
 	
 	
 	//CLASSES
-	ACCURATE_SHOT(15,"Tiro Certeiro","Seu acerto È dobrado.",
+	ACCURATE_SHOT(15,"Tiro Certeiro","Seu acerto √© dobrado.",
 			new double[] {
 					1
 			}),
-	FURY(16,"F˙ria","Seus ataques possuem 20% de chance de absorver 5% da vida m·xima para causar como dano adicional.",
+	FURY(16,"F√∫ria","Seus ataques possuem 20% de chance de absorver 5% da vida m√°xima para causar como dano adicional.",
 			new double[] {
 					0.2,
 					0.05
 			}),
-	KNIGHT_SPIRIT(17,"EspÌrito de Cavaleiro","Sua defesa È dobrada.",
+	KNIGHT_SPIRIT(17,"Esp√≠rito de Cavaleiro","Sua defesa √© dobrada.",
 			new double[] {
 					1
 			}),
-	TRAINED_KILLER(18,"Assassino Treinado","Sua chance de acerto crÌtico È dobrada.",
+	TRAINED_KILLER(18,"Assassino Treinado","Sua chance de acerto cr√≠tico √© dobrada.",
 			new double[] {
 					1
 			}),
-	THE_RELENTLESS(19,"O Implac·vel","Todo dano causado È aumentado em 30%.",
+	THE_RELENTLESS(19,"O Implac√°vel","Todo dano causado √© aumentado em 30%.",
 			new double[] {
 					0.3
 			}),
-	SACRED_PROTECTION(20,"ProteÁ„o Sagrada","Suas curas aplicam um escudo adicional atÈ o inicio do seu proximo turno, que absorve dano de atÈ 40% do seu poder de ataque no proximo ataque recebido.",
+	SACRED_PROTECTION(20,"Prote√ß√£o Sagrada","Suas curas aplicam um escudo adicional at√© o inicio do seu proximo turno, que absorve dano de at√© 40% do seu poder de ataque no proximo ataque recebido.",
 			new double[] {
 					0.4
 			}),
-	NATURAL_POLINATION(21,"PolinizaÁ„o Natural","Suas curas recebem um adicional de 100% aplicado durante as proximas 3 rodadas.",
+	NATURAL_POLINATION(21,"Poliniza√ß√£o Natural","Suas curas recebem um adicional de 100% aplicado durante as proximas 3 rodadas.",
 			new double[] {
 					1,
 					3
 			}),
-	LUCKY_HANDS(22,"M„os da Sorte","Seus ataques causam efeitos aleatorios a cada hit.(DEFESA 0, CORTA CURA 50%, 20% DANO ADICIONAL)",
+	LUCKY_HANDS(22,"M√£os da Sorte","Seus ataques causam efeitos aleatorios a cada hit.(DEFESA 0, CORTA CURA 50%, 20% DANO ADICIONAL)",
 			new double[] {
 				1,
 				0.5,
 				0.2
 			}),
-	BUDHA_CONCENTRATION(23,"ConcentraÁ„o de Budha","Cada acerto aumenta em 10% o poder de ataque durante a rodada, e ao evadir de ataques possui 50% de chance de gerar um contra ataque.",
+	BUDHA_CONCENTRATION(23,"Concentra√ß√£o de Budha","Cada acerto aumenta em 10% o poder de ataque durante a rodada, e ao evadir de ataques possui 50% de chance de gerar um contra ataque.",
 			new double[] {
 					0.1,
 					0.5
 			}),
-	FAITH_ON_CONTROL(24,"FÈ no Controle","Seus ataques possuem 20% de chance de curar 15% da vida m·xima do alvo mais injuriado.",
+	FAITH_ON_CONTROL(24,"F√© no Controle","Seus ataques possuem 20% de chance de curar 15% da vida m√°xima do alvo mais injuriado.",
 			new double[] {
 				0.2,
 				0.15
@@ -124,9 +124,9 @@ public enum EffectType implements DamageSource{
 				0.2,
 				0.2
 			}),
-	BLOOD_STEALER(26,"Ladr„o de Sangue","Possui 10% de roubo de vida.",
+	BLOOD_STEALER(26,"Ladr√£o de Sangue","Possui 10% de roubo de vida.",
 			new double[] {
-				10	
+				0.10	
 			}),
 	
 	//(,"",""),
@@ -225,7 +225,7 @@ public enum EffectType implements DamageSource{
 	public String getDeathMessage() {
 		switch(this){
 		case DRAGON_CLAW:
-			return "@owner rasgou @target com sua garra de drag„o.";
+			return "@owner rasgou @target com sua garra de drag√£o.";
 		case ELETRIC_ARMOR:
 			return "@owner desintegrou @target com um choquinho.";
 		}
@@ -236,7 +236,7 @@ public enum EffectType implements DamageSource{
 	public String getDamageMessage() {
 		switch(this){
 		case DRAGON_CLAW:
-			return "@owner causou @damage de dano a @target com sua garra de drag„o.";
+			return "@owner causou @damage de dano a @target com sua garra de drag√£o.";
 		case ELETRIC_ARMOR:
 			return "@owner causou @damage de dano a @target com um choquinho.";
 		}
@@ -247,7 +247,7 @@ public enum EffectType implements DamageSource{
 	public String getSuicideMessage() {
 		switch(this){
 		case DRAGON_CLAW:
-			return "@owner morreu tentando se masturbar com sua garra de drag„o..";
+			return "@owner morreu tentando se masturbar com sua garra de drag√£o..";
 		case ELETRIC_ARMOR:
 			return "@owner se queimou vestindo a roupinha eletrica.";
 		}
