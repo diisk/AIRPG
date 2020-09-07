@@ -58,11 +58,11 @@ public enum EffectType implements DamageSource{
 			new double[] {
 					0.5
 			}),
-	DARK_POWER(12,"Poder Sombrio","Aumenta toda cura recebida em 50% além de ignorar as defesas do inimigo.",
+	DARK_POWER(12,"Poder Sombrio","Aumenta toda cura recebida em 50% além de ignorar as defesas do inimigo.",//FAZER A PARTE DA CURA
 			new double[] {
 					0.5
 			}),
-	BOUNCY_HEAL(13,"Cura Saltitante","Suas curas possuem 80% de chance de saltar para um alvo adicional diferente, a chance reduz pela metade em cada salto.",
+	BOUNCY_HEAL(13,"Cura Saltitante","Suas curas possuem 80% de chance de saltar para um alvo adicional diferente, a chance reduz pela metade em cada salto.",//FAZER AINDA
 			new double[] {
 					0.8
 			}),
