@@ -129,6 +129,9 @@ public enum EffectType implements DamageSource{
 				0.10	
 			}),
 	
+	//EFFECTS
+	ENERGY_SHIELD(27,"Escudo de Energia","Absorve uma parte do dano recebido durante o proximo ataque.",TIME_NOTHING_AND_VALUE_ADD,true,false),
+	
 	//(,"",""),
 	;
 	
@@ -156,6 +159,10 @@ public enum EffectType implements DamageSource{
 	
 	private EffectType(int id, String name, String description, double[] values) {
 		config(id, name, description, true, -1, values, DO_NOTHING, true, false);
+	}
+	
+	private EffectType(int id, String name, String description, int category, boolean unique, boolean duplicate) {
+		config(id, name, description, true, -1, new double[0], category, unique, duplicate);
 	}
 	
 	private EffectType(int id, String name, String description) {
