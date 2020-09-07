@@ -9,6 +9,8 @@ public class Damage {
 	private double holdedDamage;
 	private double additionalDamage = 0;
 	private double finalDamage;
+	private Entity owner;
+	private Entity target;
 	
 	private boolean canceled = false;
 	
@@ -20,7 +22,7 @@ public class Damage {
 	}
 	
 	public void resetFinalDamage() {
-		finalDamage = ((startDamage-holdedDamage)*(critical?2:1))+additionalDamage;
+		finalDamage = ((startDamage-holdedDamage)*(critical?2+(owner.containsEffect(EffectType.PREDATOR)?EffectType.PREDATOR.getValues()[0]:0):1))+additionalDamage;
 	}
 	
 	public double getFinalDamage() {
