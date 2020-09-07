@@ -17,12 +17,16 @@ public class Damage {
 	public Damage(Entity owner, Entity target, DamageSource damageSource) {
 		startDamage = damageSource.getStartDamage(owner, target);
 		holdedDamage = startDamage*getDamageReductionFor(target.getDefense());
+		holdedDamage+=target.getValuesOf(0, EffectType.ENERGY_SHIELD);
 		critical = chance(owner.getCriticalChance()/100.0);
 		resetFinalDamage();
 	}
 	
 	public void resetFinalDamage() {
 		finalDamage = ((startDamage-holdedDamage)*(critical?2+(owner.containsEffect(EffectType.PREDATOR)?EffectType.PREDATOR.getValues()[0]:0):1))+additionalDamage;
+		if(finalDamage<0){
+			finalDamage=0;
+		}
 	}
 	
 	public double getFinalDamage() {
