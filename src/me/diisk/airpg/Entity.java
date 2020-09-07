@@ -115,7 +115,7 @@ public class Entity implements Ordenable{
 	}
 	
 	public double getLifeSteal() {
-		double r = attributes.get(LIFE_STEAL);
+		double r = attributes.get(LIFE_STEAL)/100.0;
 		r*=1+getValuesOf(0, EffectType.BLOODSUCKER);
 		return r;
 	}
@@ -128,12 +128,22 @@ public class Entity implements Ordenable{
 		return (int) (attributes.get(DEFENSE)*1);
 	}
 	
+	public int getEvasion() {
+		double r = attributes.get(EVASION);
+		r*=1+getValuesOf(0, EffectType.DIVINE_DANCER);
+		return (int)r;
+	}
+	
 	private double getHealthRegen() {
-		return attributes.get(HEALTH_REGENERATION);
+		double r = attributes.get(HEALTH_REGENERATION);
+		r*=1+getValuesOf(0, EffectType.LIZARD_BLOOD);
+		return r;
 	}
 	
 	public int getMaxHealth() {
-		return (int) (attributes.get(MAX_HEALTH)*1);
+		double r = attributes.get(MAX_HEALTH);
+		r*=1+getValuesOf(0, EffectType.ELDER);
+		return (int) r;
 	}
 	
 	public int getMaxEnergy() {
@@ -371,6 +381,10 @@ public class Entity implements Ordenable{
 		return name;
 	}
 	
+	public double getHealthPercent(){
+		return health/getMaxHealth();
+	}
+	
 	public void heal(Entity owner, EffectType source) {
 		
 	}
@@ -390,7 +404,7 @@ public class Entity implements Ordenable{
 		}
 		Team winners = battle.getWinners();
 		if(winners!=null) {
-			String w = "Os vencedores são: ";
+			String w = "Os vencedores sÃ£o: ";
 			for(Entity e:winners.getAllMembers()) {
 				w+=e.getName()+",";
 			}
@@ -404,11 +418,37 @@ public class Entity implements Ordenable{
 		Damage damage = new Damage(owner, this, damageSource);
 		
 		if(!damage.isCanceled()) {
+			if(containsEffect(EffectType.ENERGY_SHIELD)) {
+				Effect e = getEffectBy(this,EffectType.ENERGY_SHIELD).get(0);
+				removeEffect(e.getID());
+			}
 			if(owner.containsEffect(EffectType.DRAGON_CLAW)) {
 				damage.addAdditionalDamage(EffectType.DRAGON_CLAW.getStartDamage(owner, this));
 			}
 			if(owner.containsEffect(EffectType.CORRUPTION)) {
 				damage.addAdditionalDamage(EffectType.CORRUPTION.getValues()[0]*damage.getFinalDamage());
+			}
+			if(owner.containsEffect(EffectType.SACRIFICE)) {
+				double percent = owner.getHealthPercent();
+				if(percent>=EffectType.SACRIFICE.getValues()[1]*2 && chance(EffectType.SACRIFICE.getValues()[0])) {
+					battle.addLogLine(owner.name+" usou "+EffectType.SACRIFICE.getName()+".");
+					owner.health-=owner.getMaxHealth()*EffectType.SACRIFICE.getValues()[1];
+					damage.addAdditionalDamage(damage.getFinalDamage());
+				}
+			}
+			if(owner.containsEffect(EffectType.DARK_POWER)) {
+				damage.setHoldedDamage(0);
+			}
+			if(owner.containsEffect(EffectType.ENERGY_STEALER)) {
+				if(energy>0){
+					double stealed = energy()*EffectType.ENERGY_STEALER.getValues()[0];
+					if(energy<stealed){
+						stealed = energy;
+					}
+					energy-=stealed;
+					battle.addLogLine(owner.name+" roubou "+((int)stealed)" de energia de "+name+".");
+					owner.applyEffect(new Effect(owner,-2,EffectType.ENERGY_SHIELD,new double[]{stealed}));
+				}
 			}
 			LogLine ll = battle.addLogLine(translateMessage(owner.getLogName(), getLogName(), ((int)damage.getFinalDamage())+"", damageSource.getDamageMessage()));
 			for(Entity e:team.getAllMembers()) {
@@ -472,13 +512,13 @@ public class Entity implements Ordenable{
 		case ORDER_BY_INITIATIVE:
 			return attributes.get(INITIATIVE);
 			default:
-				throw new NullPointerException("Não existem valores nesse ID.");
+				throw new NullPointerException("NÃ£o existem valores nesse ID.");
 		}
 	}
 
 	@Override
 	public String getStringValue(int id) {
-		throw new NullPointerException("Não existem valores nesse ID.");
+		throw new NullPointerException("NÃ£o existem valores nesse ID.");
 	}
 	
 	@Override
