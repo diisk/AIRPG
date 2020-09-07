@@ -2,6 +2,8 @@ package me.diisk.airpg;
 
 import static me.diisk.airpg.Utils.*;
 
+import me.diisk.airpg.Effect.EffectType;
+
 public class Damage {
 
 	private boolean critical;
@@ -9,17 +11,23 @@ public class Damage {
 	private double holdedDamage;
 	private double additionalDamage = 0;
 	private double finalDamage;
+	private boolean evaded;
 	private Entity owner;
 	private Entity target;
 	
 	private boolean canceled = false;
 	
 	public Damage(Entity owner, Entity target, DamageSource damageSource) {
-		startDamage = damageSource.getStartDamage(owner, target);
-		holdedDamage = startDamage*getDamageReductionFor(target.getDefense());
-		holdedDamage+=target.getValuesOf(0, EffectType.ENERGY_SHIELD);
-		critical = chance(owner.getCriticalChance()/100.0);
-		resetFinalDamage();
+		this.owner=owner;
+		this.target=target;
+		evaded = chance(target.getEvasion()/(target.getEvasion()+owner.getAccuracy()));
+		if(!evaded) {
+			startDamage = damageSource.getStartDamage(owner, target);
+			holdedDamage = startDamage*getDamageReductionFor(target.getDefense());
+			holdedDamage+=target.getValuesOf(0, EffectType.ENERGY_SHIELD);
+			critical = chance(owner.getCriticalChance()/100.0);
+			resetFinalDamage();
+		}
 	}
 	
 	public void resetFinalDamage() {

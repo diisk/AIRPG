@@ -37,10 +37,10 @@ public enum EffectType implements DamageSource{
 			new double[] {
 					0.2
 			}),
-	SACRIFICE(7,"Sacrificio","Seus ataques possuem 20% de chance de consumir 5% da propria vida máxima para causar dano dobrado.",
+	SACRIFICE(7,"Sacrificio","Seus ataques possuem 20% de chance de consumir 15% da propria vida máxima para causar dano dobrado.",
 			new double[] {
 					0.2,
-					0.05
+					0.15
 			}),
 	DIVINE_DANCER(8,"Dançarino Divino","Sua evasão é dobrada.",
 			new double[] {
@@ -130,7 +130,7 @@ public enum EffectType implements DamageSource{
 			}),
 	
 	//EFFECTS
-	ENERGY_SHIELD(27,"Escudo de Energia","Absorve uma parte do dano recebido durante o proximo ataque.",TIME_NOTHING_AND_VALUE_ADD,true,false),
+	ENERGY_SHIELD(27,"Escudo de Energia","Absorve uma parte do dano recebido durante o proximo ataque.",EffectType.TIME_NOTHING_AND_VALUE_ADD,true,false),
 	
 	//(,"",""),
 	;

@@ -28,7 +28,7 @@ public class Entity implements Ordenable{
 	private String name;
 	private long id;
 	
-	private int level;
+	private int level = 1;
 	private Attributes attributes;
 	private Team team;
 	private HashMap<Entity, Double> aggroList = new HashMap<Entity, Double>();
@@ -131,6 +131,11 @@ public class Entity implements Ordenable{
 	public int getEvasion() {
 		double r = attributes.get(EVASION);
 		r*=1+getValuesOf(0, EffectType.DIVINE_DANCER);
+		return (int)r;
+	}
+	
+	public int getAccuracy() {
+		double r = attributes.get(ACCURACY);
 		return (int)r;
 	}
 	
@@ -394,8 +399,8 @@ public class Entity implements Ordenable{
 	}
 	
 	public static void main(String[] args) {
-		Team team1 = new Team(new Entity("Teste1", Race.HALF_DRAGON, Classe.ARCHER));
-		Team team2 = new Team(new Entity("Teste2", Race.AUTOMATO, Classe.ARCHER));
+		Team team1 = new Team(new Entity("Teste1", Race.ANGEL, Classe.ARCHER));
+		Team team2 = new Team(new Entity("Teste2", Race.FAIRY, Classe.ARCHER));
 		Battle battle = Battle.fight(team1, team2);
 		for(LogLine ll:battle.getLogLines()) {
 			if(!ll.isCanceled()) {
@@ -419,7 +424,7 @@ public class Entity implements Ordenable{
 		
 		if(!damage.isCanceled()) {
 			if(containsEffect(EffectType.ENERGY_SHIELD)) {
-				Effect e = getEffectBy(this,EffectType.ENERGY_SHIELD).get(0);
+				Effect e = getEffectsBy(this,EffectType.ENERGY_SHIELD).get(0);
 				removeEffect(e.getID());
 			}
 			if(owner.containsEffect(EffectType.DRAGON_CLAW)) {
@@ -441,12 +446,12 @@ public class Entity implements Ordenable{
 			}
 			if(owner.containsEffect(EffectType.ENERGY_STEALER)) {
 				if(energy>0){
-					double stealed = energy()*EffectType.ENERGY_STEALER.getValues()[0];
+					double stealed = energy*EffectType.ENERGY_STEALER.getValues()[0];
 					if(energy<stealed){
 						stealed = energy;
 					}
 					energy-=stealed;
-					battle.addLogLine(owner.name+" roubou "+((int)stealed)" de energia de "+name+".");
+					battle.addLogLine(owner.name+" roubou "+((int)stealed)+" de energia de "+name+".");
 					owner.applyEffect(new Effect(owner,-2,EffectType.ENERGY_SHIELD,new double[]{stealed}));
 				}
 			}
