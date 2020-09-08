@@ -20,7 +20,8 @@ public class Damage {
 	public Damage(Entity owner, Entity target, DamageSource damageSource) {
 		this.owner=owner;
 		this.target=target;
-		evaded = chance(target.getEvasion()/(target.getEvasion()+owner.getAccuracy()));
+		evaded = chance(/*target.getEvasion()/(target.getEvasion()+owner.getAccuracy())*/0.5);
+		
 		if(!evaded) {
 			startDamage = damageSource.getStartDamage(owner, target);
 			holdedDamage = startDamage*getDamageReductionFor(target.getDefense());
@@ -43,6 +44,10 @@ public class Damage {
 	
 	public double getAdditionalDamage() {
 		return additionalDamage;
+	}
+	
+	public boolean isEvaded() {
+		return evaded;
 	}
 	
 	public void addAdditionalDamage(double additionalDamage) {

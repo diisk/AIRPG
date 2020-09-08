@@ -136,6 +136,7 @@ public class Entity implements Ordenable{
 	
 	public int getAccuracy() {
 		double r = attributes.get(ACCURACY);
+		r*=1+getValuesOf(0, EffectType.ACCURATE_SHOT);
 		return (int)r;
 	}
 	
@@ -409,7 +410,7 @@ public class Entity implements Ordenable{
 		}
 		Team winners = battle.getWinners();
 		if(winners!=null) {
-			String w = "Os vencedores são: ";
+			String w = "Os vencedores sao: ";
 			for(Entity e:winners.getAllMembers()) {
 				w+=e.getName()+",";
 			}
@@ -423,6 +424,16 @@ public class Entity implements Ordenable{
 		Damage damage = new Damage(owner, this, damageSource);
 		
 		if(!damage.isCanceled()) {
+			if(!damage.isEvaded()) {
+				
+			}else {
+				if(owner.getAccuracy()>getEvasion()) {
+					battle.addLogLine(owner.getName()+" errou "+damageSource.getName()+" em "+getName()+".");
+				}else {
+					battle.addLogLine(getName()+" desviou de "+damageSource.getName()+" de "+owner.getName()+".");
+				}
+				
+			}
 			if(containsEffect(EffectType.ENERGY_SHIELD)) {
 				Effect e = getEffectsBy(this,EffectType.ENERGY_SHIELD).get(0);
 				removeEffect(e.getID());
@@ -517,13 +528,13 @@ public class Entity implements Ordenable{
 		case ORDER_BY_INITIATIVE:
 			return attributes.get(INITIATIVE);
 			default:
-				throw new NullPointerException("Não existem valores nesse ID.");
+				throw new NullPointerException("Nao existem valores nesse ID.");
 		}
 	}
 
 	@Override
 	public String getStringValue(int id) {
-		throw new NullPointerException("Não existem valores nesse ID.");
+		throw new NullPointerException("Nao existem valores nesse ID.");
 	}
 	
 	@Override

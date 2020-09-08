@@ -10,4 +10,6 @@ public interface DamageSource {
 	
 	public abstract String getSuicideMessage();
 	
+	public abstract String getName();
+	
 }
