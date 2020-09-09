@@ -50,7 +50,9 @@ public class Entity implements Ordenable{
 	}
 	
 	public List<Effect> getEffects() {
-		return effects;
+		List<Effect> r = new ArrayList<Effect>();
+		r.addAll(effects);
+		return r;
 	}
 	
 	public void respawn() {
@@ -121,11 +123,15 @@ public class Entity implements Ordenable{
 	}
 	
 	public double getCriticalChance() {
-		return attributes.get(CRITICAL_CHANCE);
+		double r = attributes.get(CRITICAL_CHANCE);
+		r*=1+getValuesOf(0, EffectType.TRAINED_KILLER);
+		return r;
 	}
 	
 	public int getDefense() {
-		return (int) (attributes.get(DEFENSE)*1);
+		double r = (attributes.get(DEFENSE)*1);
+		r*=1+getValuesOf(0, EffectType.KNIGHT_SPIRIT);
+		return (int)r;
 	}
 	
 	public int getEvasion() {
@@ -164,7 +170,7 @@ public class Entity implements Ordenable{
 		actionPoints=100;
 	}
 	
-	public void roundRegen() {
+	public void roundUpdate(Entity turnOn) {
 		health+=getHealthRegen();
 		energy+=getEnergyRegen();
 		if(health>getMaxHealth()) {
@@ -172,6 +178,12 @@ public class Entity implements Ordenable{
 		}
 		if(energy>getMaxEnergy()) {
 			energy = getMaxEnergy();
+		}
+		for(Effect e:getEffects()) {
+			if(!e.update(turnOn, this)) {
+				System.out.println("Removendo "+e.getType().getName()+" de "+getName()+" no turno de: "+turnOn.getName());
+				removeEffect(e.getID());
+			}
 		}
 	}
 	
@@ -400,7 +412,7 @@ public class Entity implements Ordenable{
 	}
 	
 	public static void main(String[] args) {
-		Team team1 = new Team(new Entity("Teste1", Race.ANGEL, Classe.ARCHER));
+		Team team1 = new Team(new Entity("Teste1", Race.ANGEL, Classe.WARLOCK));
 		Team team2 = new Team(new Entity("Teste2", Race.FAIRY, Classe.ARCHER));
 		Battle battle = Battle.fight(team1, team2);
 		for(LogLine ll:battle.getLogLines()) {
@@ -425,7 +437,89 @@ public class Entity implements Ordenable{
 		
 		if(!damage.isCanceled()) {
 			if(!damage.isEvaded()) {
+				if(containsEffect(EffectType.ENERGY_SHIELD)) {
+					Effect e = getEffectsBy(this,EffectType.ENERGY_SHIELD).get(0);
+					removeEffect(e.getID());
+				}
+				if(owner.containsEffect(EffectType.DRAGON_CLAW)) {
+					damage.addAdditionalDamage(EffectType.DRAGON_CLAW.getStartDamage(owner, this));
+				}
+				if(owner.containsEffect(EffectType.CORRUPTION)) {
+					damage.addAdditionalDamage(EffectType.CORRUPTION.getValues()[0]*damage.getFinalDamage());
+				}
+				if(owner.containsEffect(EffectType.THE_RELENTLESS)) {
+					damage.addAdditionalDamage(EffectType.THE_RELENTLESS.getValues()[0]*damage.getFinalDamage());
+				}
+				if(owner.containsEffect(EffectType.SACRIFICE)) {
+					double percent = owner.getHealthPercent();
+					if(percent>=EffectType.SACRIFICE.getValues()[1]*2 && chance(EffectType.SACRIFICE.getValues()[0])) {
+						battle.addLogLine(owner.name+" usou "+EffectType.SACRIFICE.getName()+".");
+						owner.health-=owner.getMaxHealth()*EffectType.SACRIFICE.getValues()[1];
+						damage.addAdditionalDamage(damage.getFinalDamage());
+					}
+				}
+				if(owner.containsEffect(EffectType.FURY)) {
+					double mod = owner.getHealthPercent();
+					if(mod>=EffectType.FURY.getValues()[1]*2 && chance(EffectType.FURY.getValues()[0])) {
+						battle.addLogLine(owner.name+" usou "+EffectType.FURY.getName()+".");
+						mod = owner.getMaxHealth()*EffectType.FURY.getValues()[1];
+						owner.health-=mod;
+						damage.addAdditionalDamage(mod*EffectType.FURY.getValues()[2]);
+					}
+				}
+				if(owner.containsEffect(EffectType.DARK_POWER)) {
+					damage.setHoldedDamage(0);
+				}
+				if(owner.containsEffect(EffectType.ENERGY_STEALER)) {
+					if(energy>0){
+						int stealed = (int) (energy*EffectType.ENERGY_STEALER.getValues()[0]);
+						if(energy<stealed){
+							stealed = (int) energy;
+						}
+						energy-=stealed;
+						battle.addLogLine(owner.name+" roubou "+((int)stealed)+" de energia de "+name+".");
+						owner.applyEffect(new Effect(owner,-2,EffectType.ENERGY_SHIELD,new double[]{stealed}));
+					}
+				}
 				
+				if(owner.containsEffect(EffectType.LUCKY_HANDS)) {
+					if(chance(0.33)) {
+						battle.addLogLine(owner.getName()+" causou "+EffectType.CURSE_OF_HEAL.getName()+" em "+getName()+".");
+						applyEffect(new Effect(owner,-2,EffectType.CURSE_OF_HEAL,EffectType.LUCKY_HANDS.getValues()));
+					}else {
+						if(chance(0.5)) {
+							battle.addLogLine(owner.getName()+" causou "+EffectType.CURSE_OF_DEFENSE.getName()+" em "+getName()+".");
+							applyEffect(new Effect(owner,-2,EffectType.CURSE_OF_DEFENSE,EffectType.LUCKY_HANDS.getValues()));
+						}else {
+							damage.addAdditionalDamage(damage.getAdditionalDamage()*EffectType.LUCKY_HANDS.getValues()[2]);
+						}
+					}
+				}
+				LogLine ll = battle.addLogLine(translateMessage(owner.getLogName(), getLogName(), ((int)damage.getFinalDamage())+"", damageSource.getDamageMessage()));
+				for(Entity e:team.getAllMembers()) {
+					double a = damage.getFinalDamage();
+					if(e.equals(this)) {
+						a*=1.5;//ALTERAR SE PRECISAR AGGRO
+					}
+					e.addAggroFor(owner, a);
+				}
+				health-=damage.getFinalDamage();
+				if(owner.getLifeSteal()>0) {
+					owner.health+=damage.getFinalDamage()*(owner.getLifeSteal()/100);
+					if(owner.health>owner.getMaxHealth()) {
+						owner.health=owner.getMaxHealth();
+					}
+				}
+				if(health<=0) {
+					ll.cancel();
+					die(owner,damageSource,battle);
+				}else {
+					if(containsEffect(EffectType.ELETRIC_ARMOR)) {
+						if(chance(EffectType.ELETRIC_ARMOR.getValues()[0])) {
+							owner.damage(this, EffectType.ELETRIC_ARMOR, battle);
+						}
+					}
+				}
 			}else {
 				if(owner.getAccuracy()>getEvasion()) {
 					battle.addLogLine(owner.getName()+" errou "+damageSource.getName()+" em "+getName()+".");
@@ -433,63 +527,6 @@ public class Entity implements Ordenable{
 					battle.addLogLine(getName()+" desviou de "+damageSource.getName()+" de "+owner.getName()+".");
 				}
 				
-			}
-			if(containsEffect(EffectType.ENERGY_SHIELD)) {
-				Effect e = getEffectsBy(this,EffectType.ENERGY_SHIELD).get(0);
-				removeEffect(e.getID());
-			}
-			if(owner.containsEffect(EffectType.DRAGON_CLAW)) {
-				damage.addAdditionalDamage(EffectType.DRAGON_CLAW.getStartDamage(owner, this));
-			}
-			if(owner.containsEffect(EffectType.CORRUPTION)) {
-				damage.addAdditionalDamage(EffectType.CORRUPTION.getValues()[0]*damage.getFinalDamage());
-			}
-			if(owner.containsEffect(EffectType.SACRIFICE)) {
-				double percent = owner.getHealthPercent();
-				if(percent>=EffectType.SACRIFICE.getValues()[1]*2 && chance(EffectType.SACRIFICE.getValues()[0])) {
-					battle.addLogLine(owner.name+" usou "+EffectType.SACRIFICE.getName()+".");
-					owner.health-=owner.getMaxHealth()*EffectType.SACRIFICE.getValues()[1];
-					damage.addAdditionalDamage(damage.getFinalDamage());
-				}
-			}
-			if(owner.containsEffect(EffectType.DARK_POWER)) {
-				damage.setHoldedDamage(0);
-			}
-			if(owner.containsEffect(EffectType.ENERGY_STEALER)) {
-				if(energy>0){
-					double stealed = energy*EffectType.ENERGY_STEALER.getValues()[0];
-					if(energy<stealed){
-						stealed = energy;
-					}
-					energy-=stealed;
-					battle.addLogLine(owner.name+" roubou "+((int)stealed)+" de energia de "+name+".");
-					owner.applyEffect(new Effect(owner,-2,EffectType.ENERGY_SHIELD,new double[]{stealed}));
-				}
-			}
-			LogLine ll = battle.addLogLine(translateMessage(owner.getLogName(), getLogName(), ((int)damage.getFinalDamage())+"", damageSource.getDamageMessage()));
-			for(Entity e:team.getAllMembers()) {
-				double a = damage.getFinalDamage();
-				if(e.equals(this)) {
-					a*=1.5;//ALTERAR SE PRECISAR AGGRO
-				}
-				e.addAggroFor(owner, a);
-			}
-			health-=damage.getFinalDamage();
-			if(owner.getLifeSteal()>0) {
-				owner.health+=damage.getFinalDamage()*(owner.getLifeSteal()/100);
-				if(owner.health>owner.getMaxHealth()) {
-					owner.health=owner.getMaxHealth();
-				}
-			}
-			if(health<=0) {
-				ll.cancel();
-				die(owner,damageSource,battle);
-			}else {
-				if(containsEffect(EffectType.ELETRIC_ARMOR)) {
-					if(chance(EffectType.ELETRIC_ARMOR.getValues()[0])) {
-						owner.damage(this, EffectType.ELETRIC_ARMOR, battle);
-					}
-				}
 			}
 		}
 	}

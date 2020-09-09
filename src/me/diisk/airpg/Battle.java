@@ -108,9 +108,9 @@ public class Battle {
 						battle.addLogLine("Fim do Round");
 					}
 					round++;
-					battle.addLogLine("Iniciando Round "+round+":");
+					battle.addLogLine("Iniciando Round "+round+"("+en.getName()+"):");
 					for(Entity enn:ents) {
-						enn.roundRegen();
+						enn.roundUpdate(en);
 					}
 					en.turnOn();
 					while(en.useSkill(battle));

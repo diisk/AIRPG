@@ -77,10 +77,11 @@ public enum EffectType implements DamageSource{
 			new double[] {
 					1
 			}),
-	FURY(16,"Furia","Seus ataques possuem 20% de chance de absorver 5% da vida maxima para causar como dano adicional.",
+	FURY(16,"Furia","Seus ataques possuem 20% de chance de absorver 5% da vida maxima para causar o dobro como dano adicional.",
 			new double[] {
 					0.2,
-					0.05
+					0.05,
+					2
 			}),
 	KNIGHT_SPIRIT(17,"Espirito de Cavaleiro","Sua defesa e dobrada.",
 			new double[] {
@@ -94,11 +95,11 @@ public enum EffectType implements DamageSource{
 			new double[] {
 					0.3
 			}),
-	SACRED_PROTECTION(20,"Protecao Sagrada","Suas curas aplicam um escudo adicional ate o inicio do seu proximo turno, que absorve dano de ate 40% do seu poder de ataque no proximo ataque recebido.",
+	SACRED_PROTECTION(20,"Protecao Sagrada","Suas curas aplicam um escudo adicional ate o inicio do seu proximo turno, que absorve dano de ate 40% do seu poder de ataque no proximo ataque recebido.",//FAZER AINDA
 			new double[] {
 					0.4
 			}),
-	NATURAL_POLINATION(21,"Polinizacao Natural","Suas curas recebem um adicional de 100% aplicado durante as proximas 3 rodadas.",
+	NATURAL_POLINATION(21,"Polinizacao Natural","Suas curas recebem um adicional de 100% aplicado durante as proximas 3 rodadas.",//FAZER AINDA
 			new double[] {
 					1,
 					3
@@ -131,6 +132,10 @@ public enum EffectType implements DamageSource{
 	
 	//EFFECTS
 	ENERGY_SHIELD(27,"Escudo de Energia","Absorve uma parte do dano recebido durante o proximo ataque.",EffectType.TIME_NOTHING_AND_VALUE_ADD,true,false),
+	
+	CURSE_OF_HEAL(28,"Maldição da Cura","Reduz toda cura recebida.",EffectType.TIME_RESET_AND_VALUE_NOTHING,true,false),
+	
+	CURSE_OF_DEFENSE(29,"Maldição da Defesa","Reduz a defesa.",EffectType.TIME_RESET_AND_VALUE_NOTHING,true,false),
 	
 	//(,"",""),
 	;

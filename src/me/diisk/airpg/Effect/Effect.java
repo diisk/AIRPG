@@ -32,6 +32,15 @@ public class Effect {
 		return owner;
 	}
 	
+	public boolean update(Entity turnOn, Entity target) {
+		if(rounds>0) {
+			rounds--;
+		}else if(rounds==-2) {
+			return !owner.equals(turnOn);
+		}
+		return rounds!=0;
+	}
+	
 	public int getID() {
 		return id;
 	}
