@@ -118,6 +118,7 @@ public class Entity implements Ordenable{
 	
 	public double getLifeSteal() {
 		double r = attributes.get(LIFE_STEAL)/100.0;
+		r+=getValuesOf(0, EffectType.BLOOD_STEALER);
 		r*=1+getValuesOf(0, EffectType.BLOODSUCKER);
 		return r;
 	}
@@ -403,8 +404,16 @@ public class Entity implements Ordenable{
 		return health/getMaxHealth();
 	}
 	
-	public void heal(Entity owner, EffectType source) {
+	public void heal(Entity owner, int value, HealSource healSource, Battle battle) {
+		double maxHeal = getMaxHealth()-health;
+		double finalHeal = value;
 		
+		if(finalHeal>maxHeal) {
+			health = getMaxHealth();
+		}else {
+			health+=finalHeal;
+		}
+		battle.addLogLine(translateMessage(owner.getLogName(), getLogName(), ((int)finalHeal)+"", healSource.getHealMessage()));
 	}
 	
 	public String getLogName() {
@@ -412,8 +421,8 @@ public class Entity implements Ordenable{
 	}
 	
 	public static void main(String[] args) {
-		Team team1 = new Team(new Entity("Teste1", Race.ANGEL, Classe.WARLOCK));
-		Team team2 = new Team(new Entity("Teste2", Race.FAIRY, Classe.ARCHER));
+		Team team1 = new Team(new Entity("Teste1", Race.ANGEL, Classe.MONK));
+		Team team2 = new Team(new Entity("Teste2", Race.FAIRY, Classe.MONK));
 		Battle battle = Battle.fight(team1, team2);
 		for(LogLine ll:battle.getLogLines()) {
 			if(!ll.isCanceled()) {
@@ -443,6 +452,9 @@ public class Entity implements Ordenable{
 				}
 				if(owner.containsEffect(EffectType.DRAGON_CLAW)) {
 					damage.addAdditionalDamage(EffectType.DRAGON_CLAW.getStartDamage(owner, this));
+				}
+				if(owner.containsEffect(EffectType.BUDHA_CONCENTRATION)) {
+					owner.applyEffect(new Effect(owner, 1, EffectType.BUDHA_HANDS, EffectType.BUDHA_CONCENTRATION.getValues()));
 				}
 				if(owner.containsEffect(EffectType.CORRUPTION)) {
 					damage.addAdditionalDamage(EffectType.CORRUPTION.getValues()[0]*damage.getFinalDamage());
@@ -503,12 +515,16 @@ public class Entity implements Ordenable{
 					}
 					e.addAggroFor(owner, a);
 				}
+				if(owner.containsEffect(EffectType.THE_EXECUTIONER)) {
+					if(getHealthPercent()<=EffectType.THE_EXECUTIONER.getValues()[1] && chance(EffectType.THE_EXECUTIONER.getValues()[0])) {
+						ll.cancel();
+						damage.setFinalDamage(health);
+						damageSource=EffectType.THE_EXECUTIONER;
+					}
+				}
 				health-=damage.getFinalDamage();
 				if(owner.getLifeSteal()>0) {
-					owner.health+=damage.getFinalDamage()*(owner.getLifeSteal()/100);
-					if(owner.health>owner.getMaxHealth()) {
-						owner.health=owner.getMaxHealth();
-					}
+					//FAZER O LIFESTEAL
 				}
 				if(health<=0) {
 					ll.cancel();
@@ -526,7 +542,17 @@ public class Entity implements Ordenable{
 				}else {
 					battle.addLogLine(getName()+" desviou de "+damageSource.getName()+" de "+owner.getName()+".");
 				}
-				
+				if(containsEffect(EffectType.BUDHA_CONCENTRATION)) {
+					if(chance(EffectType.BUDHA_CONCENTRATION.getValues()[1])) {
+						battle.addLogLine("Contra ataque de "+getName()+".");
+						Skill skill = Skill.DISARMED_PUNCH;
+						Item weapon = equipments[Slot.WEAPON.getID()];
+						if(weapon!=null) {
+							skill = weapon.getSkill();
+						}
+						owner.damage(this, skill, battle);
+					}
+				}
 			}
 		}
 	}

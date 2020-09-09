@@ -115,7 +115,7 @@ public enum EffectType implements DamageSource{
 					0.1,
 					0.5
 			}),
-	FAITH_ON_CONTROL(24,"Fe no Controle","Seus ataques possuem 20% de chance de curar 15% da vida mÃ¡xima do alvo mais injuriado.",
+	FAITH_ON_CONTROL(24,"Fe no Controle","Seus ataques possuem 20% de chance de curar 15% da vida maxima do alvo mais injuriado.",//FAZER AINDA
 			new double[] {
 				0.2,
 				0.15
@@ -133,9 +133,11 @@ public enum EffectType implements DamageSource{
 	//EFFECTS
 	ENERGY_SHIELD(27,"Escudo de Energia","Absorve uma parte do dano recebido durante o proximo ataque.",EffectType.TIME_NOTHING_AND_VALUE_ADD,true,false),
 	
-	CURSE_OF_HEAL(28,"Maldição da Cura","Reduz toda cura recebida.",EffectType.TIME_RESET_AND_VALUE_NOTHING,true,false),
+	CURSE_OF_HEAL(28,"Maldição da Cura","Reduz toda cura recebida.",EffectType.TIME_RESET_AND_VALUE_NOTHING,true,false),//FAZER AINDA
 	
 	CURSE_OF_DEFENSE(29,"Maldição da Defesa","Reduz a defesa.",EffectType.TIME_RESET_AND_VALUE_NOTHING,true,false),
+	
+	BUDHA_HANDS(30,"Mão de Budha","Aumenta o poder de ataque em cada acerto durante a rodada.",EffectType.TIME_RESET_AND_VALUE_ADD,true,false),
 	
 	//(,"",""),
 	;
@@ -240,6 +242,8 @@ public enum EffectType implements DamageSource{
 			return "@owner rasgou @target com sua garra de dragao.";
 		case ELETRIC_ARMOR:
 			return "@owner desintegrou @target com um choquinho.";
+		case THE_EXECUTIONER:
+			return "@owner executou @target com um paranaue ninja.";
 		}
 		return null;
 	}
@@ -262,6 +266,8 @@ public enum EffectType implements DamageSource{
 			return "@owner morreu tentando se masturbar com sua garra de dragao..";
 		case ELETRIC_ARMOR:
 			return "@owner se queimou vestindo a roupinha eletrica.";
+		case THE_EXECUTIONER:
+			return "O cara se executou mano, COMO??? @owner reporta o admin plz!!!";
 		}
 		return null;
 	}
