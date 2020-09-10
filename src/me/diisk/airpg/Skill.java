@@ -2,7 +2,7 @@ package me.diisk.airpg;
 
 import java.util.Random;
 
-public enum Skill implements DamageSource{
+public enum Skill implements DamageSource, HealSource{
 	
 	DISARMED_PUNCH(0,"Soco Desarmado",25,"Causa 10 dano ao alvo.",100),
 	PRECISE_SHOT(1,"Tiro Preciso",0.20,.25,"Causa dano bruto baseado no poder de ataque.",100),
@@ -220,6 +220,12 @@ public enum Skill implements DamageSource{
 			break;
 		}
 		return "@owner se matou, não sei como.";
+	}
+
+	@Override
+	public String getHealMessage() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

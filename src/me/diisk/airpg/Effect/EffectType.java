@@ -2,8 +2,9 @@ package me.diisk.airpg.Effect;
 
 import me.diisk.airpg.DamageSource;
 import me.diisk.airpg.Entity;
+import me.diisk.airpg.HealSource;
 
-public enum EffectType implements DamageSource{
+public enum EffectType implements DamageSource, HealSource{
 
 	
 	//RAÇAS
@@ -329,6 +330,12 @@ public enum EffectType implements DamageSource{
 		case UNDEAD:
 			return "O morto vivo @owner ressucitou CAUSE THIS IS THRILLER OH OH...";
 		}
+		return null;
+	}
+
+	@Override
+	public String getHealMessage() {
+		// TODO Auto-generated method stub
 		return null;
 	}
 	
