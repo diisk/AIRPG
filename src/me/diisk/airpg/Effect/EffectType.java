@@ -337,7 +337,75 @@ public enum EffectType implements DamageSource, HealSource{
 
 	@Override
 	public String getHealMessage(Entity owner, Entity target, int value) {
-		// TODO Auto-generated method stub
+		switch(this) {
+		case ACCURATE_SHOT:
+			break;
+		case BLOODSUCKER:
+			break;
+		case BLOOD_STEALER:
+			break;
+		case BOUNCING_REBOUND:
+			return owner.getName()+" curou "+value+" de vida de "+target.getName()+" com "+BOUNCY_HEAL.getName()+".";
+		case BOUNCY_HEAL:
+			break;
+		case BUDHA_CONCENTRATION:
+			break;
+		case BUDHA_HANDS:
+			break;
+		case CORRUPTION:
+			break;
+		case CURSE_OF_DEFENSE:
+			break;
+		case CURSE_OF_HEAL:
+			break;
+		case DARK_POWER:
+			break;
+		case DIVINE_DANCER:
+			break;
+		case DRAGON_CLAW:
+			break;
+		case ELDER:
+			break;
+		case ELETRIC_ARMOR:
+			break;
+		case ENERGY_SHIELD:
+			break;
+		case ENERGY_STEALER:
+			break;
+		case FAITH_ON_CONTROL:
+			break;
+		case FURY:
+			break;
+		case HEALER:
+			break;
+		case KNIGHT_SPIRIT:
+			break;
+		case LIZARD_BLOOD:
+			break;
+		case LUCKY:
+			break;
+		case LUCKY_HANDS:
+			break;
+		case NATURAL_POLINATION:
+			break;
+		case PREDATOR:
+			break;
+		case SACRED_PROTECTION:
+			break;
+		case SACRIFICE:
+			break;
+		case THE_EXECUTIONER:
+			break;
+		case THE_RELENTLESS:
+			break;
+		case TRAINED_KILLER:
+			break;
+		case UNDEAD:
+			break;
+		default:
+			break;
+		
+		}
 		return null;
 	}
 

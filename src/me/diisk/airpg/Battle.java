@@ -39,7 +39,7 @@ public class Battle {
 		maxRounds=(team1.getSize()+team2.getSize())*20;
 		CustomList<Entity> ents = getEntities();
 		for(int i=0;i<ents.size();i++) {
-			ents.get(i).respawn();
+			ents.get(i).respawn(this);
 		}
 		Random rand = new Random();
 		for(Entity en1:team1.getAllMembers()) {

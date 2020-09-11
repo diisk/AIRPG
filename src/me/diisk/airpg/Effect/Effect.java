@@ -1,6 +1,7 @@
 package me.diisk.airpg.Effect;
 
 import me.diisk.airpg.Entity;
+import static me.diisk.airpg.Utils.*;
 
 public class Effect {
 
@@ -33,7 +34,20 @@ public class Effect {
 	}
 	
 	public void onApply(Entity target) {
-		
+		switch(type) {
+		case BOUNCING_REBOUND:
+			target.removeEffect(id);
+			target.heal(owner, (int) values[1], type);
+			for(Entity e:owner.getTeam().getInjurieds()) {
+				if(!e.equals(target)) {
+					if(chance(values[0])) {
+						e.applyEffect(new Effect(owner, 1, type, new double[] {values[0]/2,values[1]/2}));
+					}
+					break;
+				}
+			}
+			break;
+		}
 	}
 	
 	public void onRemove(boolean forced, Entity target) {

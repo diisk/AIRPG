@@ -32,6 +32,7 @@ public class Entity implements Ordenable{
 	private int level = 1;
 	private Attributes attributes;
 	private Team team;
+	private Battle battle;
 	private HashMap<Entity, Double> aggroList = new HashMap<Entity, Double>();
 	
 	private double health;
@@ -56,7 +57,12 @@ public class Entity implements Ordenable{
 		return r;
 	}
 	
-	public void respawn() {
+	public Battle getBattle() {
+		return battle;
+	}
+	
+	public void respawn(Battle battle) {
+		this.battle=battle;
 		effects.clear();
 		applyEffect(new Effect(this, race.getPassive()));
 		applyEffect(new Effect(this, classe.getPassive()));
@@ -406,11 +412,11 @@ public class Entity implements Ordenable{
 		return health/getMaxHealth();
 	}
 	
-	public void heal(Entity owner, HealSource healSource, Battle battle) {
-		heal(owner, (int) healSource.getStartHeal(owner,this), healSource, battle);
+	public void heal(Entity owner, HealSource healSource) {
+		heal(owner, (int) healSource.getStartHeal(owner,this), healSource);
 	}
 	
-	public void heal(Entity owner, int value, HealSource healSource, Battle battle) {
+	public void heal(Entity owner, int value, HealSource healSource) {
 		double maxHeal = getMaxHealth()-health;
 		double finalHeal = value;
 		
@@ -427,7 +433,7 @@ public class Entity implements Ordenable{
 			for(Entity e:injurieds) {
 				if(!e.equals(this)) {
 					if(chance(mod)) {
-						e.applyEffect(new Effect(owner, 1, EffectType.BOUNCING_REBOUND, EffectType.BOUNCY_HEAL.getValues()));
+						e.applyEffect(new Effect(owner, 1, EffectType.BOUNCING_REBOUND, new double[] {mod/2,finalHeal*mod}));
 					}
 					break;
 				}
