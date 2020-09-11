@@ -6,4 +6,6 @@ public interface HealSource {
 	
 	public abstract String getName();
 	
+	public abstract double getStartHeal();
+	
 }

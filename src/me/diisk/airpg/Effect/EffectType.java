@@ -338,5 +338,11 @@ public enum EffectType implements DamageSource, HealSource{
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public double getStartHeal() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
 	
 }

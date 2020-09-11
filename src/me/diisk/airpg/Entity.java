@@ -404,6 +404,10 @@ public class Entity implements Ordenable{
 		return health/getMaxHealth();
 	}
 	
+	public void heal(Entity owner, HealSource healSource, Battle battle) {
+		heal(owner, (int) healSource.getStartHeal(), healSource, battle);
+	}
+	
 	public void heal(Entity owner, int value, HealSource healSource, Battle battle) {
 		double maxHeal = getMaxHealth()-health;
 		double finalHeal = value;
