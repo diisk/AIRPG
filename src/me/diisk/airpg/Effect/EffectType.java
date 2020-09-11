@@ -30,7 +30,7 @@ public enum EffectType implements DamageSource, HealSource{
 					0.25,
 					0.5
 			}),
-	HEALER(5,"Curandeiro","Todas as habilidades de cura sao 100% mais efetivas.",//FAZER
+	HEALER(5,"Curandeiro","Todas as habilidades de cura sao 100% mais efetivas.",
 			new double[] {
 					1
 			}),
@@ -59,11 +59,11 @@ public enum EffectType implements DamageSource, HealSource{
 			new double[] {
 					0.5
 			}),
-	DARK_POWER(12,"Poder Sombrio","Aumenta toda cura recebida em 50% alem de ignorar as defesas do inimigo.",//FAZER A PARTE DA CURA
+	DARK_POWER(12,"Poder Sombrio","Aumenta toda cura recebida em 50% alem de ignorar as defesas do inimigo.",
 			new double[] {
 					0.5
 			}),
-	BOUNCY_HEAL(13,"Cura Saltitante","Suas curas possuem 80% de chance de saltar para um alvo adicional diferente, a chance reduz pela metade em cada salto.",//FAZER AINDA
+	BOUNCY_HEAL(13,"Cura Saltitante","Suas curas possuem 80% de chance de saltar para um alvo adicional diferente, a chance e a cura reduz pela metade em cada salto.",//FAZER AINDA
 			new double[] {
 					0.8
 			}),
@@ -139,6 +139,8 @@ public enum EffectType implements DamageSource, HealSource{
 	CURSE_OF_DEFENSE(29,"Maldição da Defesa","Reduz a defesa.",EffectType.TIME_RESET_AND_VALUE_NOTHING,true,false),
 	
 	BUDHA_HANDS(30,"Mão de Budha","Aumenta o poder de ataque em cada acerto durante a rodada.",EffectType.TIME_RESET_AND_VALUE_ADD,true,false),
+	
+	BOUNCING_REBOUND(31,"Rebate Saltitante","Recebeu um efeito de cura saltitante recentemente.",EffectType.DO_NOTHING,false,true),
 	
 	//(,"",""),
 	;

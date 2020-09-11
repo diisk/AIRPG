@@ -24,6 +24,7 @@ public class Entity implements Ordenable{
 	public static final int EQUIPMENTS_LENGTH = 12;
 	
 	public static final int ORDER_BY_INITIATIVE = 0;
+	public static final int ORDER_BY_HEALTH = 1;
 	
 	private String name;
 	private long id;
@@ -223,6 +224,7 @@ public class Entity implements Ordenable{
 			}
 			effect.setID(id);
 			effects.add(effect);
+			effect.onApply(this);
 		}else {
 			switch(type.getCategory()) {
 			case EffectType.TIME_ADD_AND_VALUE_ADD:
@@ -412,12 +414,26 @@ public class Entity implements Ordenable{
 		double maxHeal = getMaxHealth()-health;
 		double finalHeal = value;
 		
+		finalHeal*=1+EffectType.HEALER.getValues()[0]+EffectType.DARK_POWER.getValues()[0];
 		if(finalHeal>maxHeal) {
 			health = getMaxHealth();
 		}else {
 			health+=finalHeal;
 		}
-		battle.addLogLine(translateMessage(owner.getLogName(), getLogName(), ((int)finalHeal)+"", healSource.getHealMessage(owner,this)));
+		battle.addLogLine(healSource.getHealMessage(owner,this,(int) finalHeal));
+		if(owner.containsEffect(EffectType.BOUNCY_HEAL)) {
+			double mod = EffectType.BOUNCY_HEAL.getValues()[0];
+			List<Entity> injurieds = owner.team.getInjurieds();
+			for(Entity e:injurieds) {
+				if(!e.equals(this)) {
+					if(chance(mod)) {
+						e.applyEffect(new Effect(owner, 1, EffectType.BOUNCING_REBOUND, EffectType.BOUNCY_HEAL.getValues()));
+					}
+					break;
+				}
+			}
+			
+		}
 	}
 	
 	public String getLogName() {
@@ -594,6 +610,8 @@ public class Entity implements Ordenable{
 		switch(id) {
 		case ORDER_BY_INITIATIVE:
 			return attributes.get(INITIATIVE);
+		case ORDER_BY_HEALTH:
+			return health;
 			default:
 				throw new NullPointerException("Nao existem valores nesse ID.");
 		}

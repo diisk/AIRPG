@@ -32,6 +32,14 @@ public class Effect {
 		return owner;
 	}
 	
+	public void onApply(Entity target) {
+		
+	}
+	
+	public void onRemove(boolean forced, Entity target) {
+		
+	}
+	
 	public boolean update(Entity turnOn, Entity target) {
 		if(rounds>0) {
 			rounds--;

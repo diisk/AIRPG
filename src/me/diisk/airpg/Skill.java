@@ -223,9 +223,15 @@ public enum Skill implements DamageSource, HealSource{
 	}
 
 	@Override
-	public String getHealMessage() {
+	public String getHealMessage(Entity owner, Entity target, int value) {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	@Override
+	public double getStartHeal(Entity owner, Entity target) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	
 }

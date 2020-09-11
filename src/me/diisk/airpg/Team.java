@@ -3,6 +3,8 @@ package me.diisk.airpg;
 import java.util.ArrayList;
 import java.util.List;
 
+import me.diisk.airpg.CustomList.CustomList;
+
 public class Team {
 
 	private int id;
@@ -23,6 +25,17 @@ public class Team {
 		r.add(leader);
 		r.addAll(members);
 		return r;
+	}
+	
+	public List<Entity> getInjurieds(){
+		CustomList<Entity> cl = new CustomList<Entity>();
+		for(Entity e:getAllMembers()) {
+			if(e.getHealthPercent()<0.7) {
+				cl.add(e);
+			}
+		}
+		cl.orderBy(Entity.ORDER_BY_HEALTH, false, false);
+		return cl.toList();
 	}
 	
 	public boolean isAllDead() {
