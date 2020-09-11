@@ -405,7 +405,7 @@ public class Entity implements Ordenable{
 	}
 	
 	public void heal(Entity owner, HealSource healSource, Battle battle) {
-		heal(owner, (int) healSource.getStartHeal(), healSource, battle);
+		heal(owner, (int) healSource.getStartHeal(owner,this), healSource, battle);
 	}
 	
 	public void heal(Entity owner, int value, HealSource healSource, Battle battle) {
@@ -417,7 +417,7 @@ public class Entity implements Ordenable{
 		}else {
 			health+=finalHeal;
 		}
-		battle.addLogLine(translateMessage(owner.getLogName(), getLogName(), ((int)finalHeal)+"", healSource.getHealMessage()));
+		battle.addLogLine(translateMessage(owner.getLogName(), getLogName(), ((int)finalHeal)+"", healSource.getHealMessage(owner,this)));
 	}
 	
 	public String getLogName() {
