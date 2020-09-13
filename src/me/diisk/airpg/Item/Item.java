@@ -6,7 +6,12 @@ import me.diisk.airpg.Skill;
 public class Item {
 
 	private Type type;
+	private int amount;
 	
+	public Item(int amount, Type type) {
+		this.amount=amount;
+		this.type=type;
+	}
 	
 	public Attributes getMods() {
 		return type.getMods();

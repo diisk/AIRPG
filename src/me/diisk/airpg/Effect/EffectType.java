@@ -1,5 +1,6 @@
 package me.diisk.airpg.Effect;
 
+import me.diisk.airpg.Damage;
 import me.diisk.airpg.DamageSource;
 import me.diisk.airpg.Entity;
 import me.diisk.airpg.HealSource;
@@ -59,7 +60,7 @@ public enum EffectType implements DamageSource, HealSource{
 			new double[] {
 					0.5
 			}),
-	DARK_POWER(12,"Poder Sombrio","Aumenta toda cura recebida em 50% alem de ignorar as defesas do inimigo.",//TESTAR CURA
+	DARK_POWER(12,"Poder Sombrio","Aumenta toda cura recebida em 50% alem de ignorar as defesas e escudos.",
 			new double[] {
 					0.5
 			}),
@@ -147,6 +148,10 @@ public enum EffectType implements DamageSource, HealSource{
 	CELL_REGENERATION(33,"Regeneração Celular","Esta com efeito de cura por rodada.",EffectType.TIME_RESET_AND_VALUE_RESET,false,false),
 	
 	LIFE_STEAL(34,"Roubo de Vida","Cura ao causar dano a um inimigo."),
+	
+	BLEEDING(35,"Sangramento","Causa dano por rodada.",EffectType.TIME_RESET_AND_VALUE_RESET,false,false),
+	
+	STUNNED(36,"Desnorteado","Não pode fazer nada durante a rodada."),
 	
 	//(,"",""),
 	;
@@ -253,17 +258,22 @@ public enum EffectType implements DamageSource, HealSource{
 			return killer.getName()+" desintegrou "+target.getName()+" com um choquinho.";
 		case THE_EXECUTIONER:
 			return killer.getName()+" executou "+target.getName()+" com um paranaue ninja.";
+		case BLEEDING:
+			return killer.getName()+" fez "+target.getName()+" sangrar até a morte.";
 		}
 		return name()+" SEM VALOR DEFINIDO EM DEATHMESSAGE";
 	}
 
 	@Override
-	public String getDamageMessage(Entity owner, Entity target, int value) {
+	public String getDamageMessage(Entity owner, Entity target, Damage damage) {
+		int value = (int) damage.getFinalDamage();
 		switch(this){
 		case DRAGON_CLAW:
 			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com sua garra de dragao.";
 		case ELETRIC_ARMOR:
 			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com um choquinho.";
+		case BLEEDING:
+			return target.getLogName()+" perdeu "+value+" de vida, por um sangramento causado por "+owner.getLogName()+".";
 		}
 		return name()+" SEM VALOR DEFINIDO EM DAMAGEMESSAGE";
 	}
@@ -277,68 +287,20 @@ public enum EffectType implements DamageSource, HealSource{
 			return owner.getName()+" se queimou vestindo a roupinha eletrica.";
 		case THE_EXECUTIONER:
 			return "O cara se executou mano, COMO??? "+owner.getName()+" reporta o admin plz!!!";
+		case BLEEDING:
+			return "Menstruou e morreu, reporta pra nois tiu "+owner.getName();
 		}
 		return name()+" SEM VALOR DEFINIDO EM SUICIDEMESSAGE";
 	}
 	
-	public String getUsageMessage() {
+	public String getUsageMessage(Entity owner, Entity target) {
 		switch(this) {
-		case ACCURATE_SHOT:
-			break;
-		case BLOODSUCKER:
-			break;
-		case BLOOD_STEALER:
-			break;
-		case BOUNCY_HEAL:
-			break;
-		case BUDHA_CONCENTRATION:
-			break;
-		case CORRUPTION:
-			break;
-		case DARK_POWER:
-			break;
-		case DIVINE_DANCER:
-			break;
-		case DRAGON_CLAW:
-			break;
-		case ELDER:
-			break;
-		case ELETRIC_ARMOR:
-			break;
-		case ENERGY_STEALER:
-			break;
-		case FAITH_ON_CONTROL:
-			break;
-		case FURY:
-			break;
-		case HEALER:
-			break;
-		case KNIGHT_SPIRIT:
-			break;
-		case LIZARD_BLOOD:
-			break;
-		case LUCKY:
-			break;
-		case LUCKY_HANDS:
-			break;
-		case NATURAL_POLINATION:
-			break;
-		case PREDATOR:
-			break;
-		case SACRED_PROTECTION:
-			break;
-		case SACRIFICE:
-			break;
-		case THE_EXECUTIONER:
-			break;
-		case THE_RELENTLESS:
-			break;
-		case TRAINED_KILLER:
-			break;
 		case UNDEAD:
-			return "O morto vivo @owner ressucitou CAUSE THIS IS THRILLER OH OH...";
+			return "O morto vivo "+owner.getName()+" ressucitou CAUSE THIS IS THRILLER OH OH...";
+		case STUNNED:
+			return owner.getName()+" deixou "+target.getName()+" desnorteado.";
 		}
-		return name()+" SEM VALOR DEFINIDO EM USAGEMESSAGE";
+		return owner.getName()+" aplicou "+getName()+" em "+target.getName()+".";
 	}
 
 	@Override
@@ -374,6 +336,39 @@ public enum EffectType implements DamageSource, HealSource{
 			return target.getMaxHealth()*values[1];
 		}
 		return 0;
+	}
+
+	@Override
+	public boolean canBeCritical() {
+		// TODO Auto-generated method stub
+		return false;
+	}
+
+	@Override
+	public boolean canBeEvaded() {
+		switch(this) {
+		case BLEEDING:
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public boolean ignoreDefense() {
+		switch(this) {
+		case BLEEDING:
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isSingleTargetHeal() {
+		switch(this) {
+		case BOUNCING_REBOUND:
+			return false;
+		}
+		return true;
 	}
 	
 }

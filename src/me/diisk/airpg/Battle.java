@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Random;
 
 import me.diisk.airpg.CustomList.CustomList;
+import me.diisk.airpg.Effect.EffectType;
 
 public class Battle {
 
@@ -122,8 +123,12 @@ public class Battle {
 							enn.roundUpdate(en);
 						}
 					}
-					en.turnOn();
-					while(en.useSkill());
+					if(!en.containsEffect(EffectType.STUNNED)) {
+						en.turnOn();
+						while(en.useSkill());
+					}else {
+						battle.addLogLine(en.getName()+" está desnorteado.");
+					}
 				}
 			}
 		}

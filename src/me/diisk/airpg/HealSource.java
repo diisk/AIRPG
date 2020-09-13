@@ -8,4 +8,6 @@ public interface HealSource {
 	
 	public abstract double getStartHeal(Entity owner, Entity target);
 	
+	public abstract boolean isSingleTargetHeal();
+	
 }

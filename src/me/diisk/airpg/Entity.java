@@ -2,6 +2,7 @@ package me.diisk.airpg;
 
 import me.diisk.airpg.Item.Item;
 import me.diisk.airpg.Item.Slot;
+import me.diisk.airpg.Item.Type;
 
 import static me.diisk.airpg.Attributes.*;
 
@@ -189,7 +190,6 @@ public class Entity implements Ordenable{
 		}
 		for(Effect e:getEffects()) {
 			if(!e.update(turnOn, this)) {
-				System.out.println("Removendo "+e.getType().getName()+" de "+getName()+" no turno de: "+turnOn.getName());
 				removeEffect(e.getID());
 			}
 		}
@@ -358,6 +358,7 @@ public class Entity implements Ordenable{
 					}
 				}
 				if(target!=null) {
+					double mod;
 					switch(skill) {
 					case ACCURATE_ATTACK:
 						break;
@@ -380,12 +381,33 @@ public class Entity implements Ordenable{
 					case FAST_ARROW:
 						break;
 					case FIREBALL:
+						mod = skill.getValues()[0];
+						if(energy>=mod) {
+							energy-=mod;
+							battle.addLogLine(skill.getUsageMessage(this, this));
+							for(Entity e:target.getTeam().getAliveMembers()) {
+								e.damage(this, skill);
+							}
+							return true;
+						}
 						break;
 					case FURIOUS_BLADES:
 						break;
 					case HALF_MOON_CUT:
 						break;
 					case ILUMINATED_FIELD:
+						mod = skill.getValues()[0];
+						if(energy>=mod) {
+							List<Entity> ts = team.getRandomHealList();
+							if(ts.size()>=2 || (ts.size()==1&&ts.get(0).getHealthPercent()<=0.4)) {
+								energy-=mod;
+								battle.addLogLine(skill.getUsageMessage(this, this));
+								for(Entity e:ts) {
+									e.heal(this, skill);
+								}
+								return true;
+							}
+						}
 						break;
 					case PRECISE_SHOT:
 						break;
@@ -432,7 +454,7 @@ public class Entity implements Ordenable{
 		}
 		if(healSource!=EffectType.LIFE_STEAL) {
 			if(owner.containsEffect(EffectType.BOUNCY_HEAL)) {
-				if(healSource!=EffectType.BOUNCING_REBOUND) {
+				if(healSource.isSingleTargetHeal()) {
 					double mod = EffectType.BOUNCY_HEAL.getValues()[0];
 					List<Entity> injurieds = owner.team.getAliveMembers();
 					for(Entity e:injurieds) {
@@ -463,12 +485,16 @@ public class Entity implements Ordenable{
 	}
 	
 	public static void main(String[] args) {
-		Team team1 = new Team(new Entity("Golinight", Race.AUTOMATO, Classe.KNIGHT));
-		//team1.addMember(new Entity("Autonight", Race.AUTOMATO, Classe.KNIGHT));
-		//team1.addMember(new Entity("Golinight2", Race.GOLEM, Classe.KNIGHT));
-		Team team2 = new Team(new Entity("Vampancer", Race.DARKIN, Classe.NECROMANCER));
-		//team2.addMember(new Entity("Darkancer", Race.DARKIN, Classe.NECROMANCER)); 
-		//team2.addMember(new Entity("Abymancer", Race.ABYSSAL, Classe.NECROMANCER));
+		Entity e1 = new Entity("Golinight", Race.AUTOMATO, Classe.KNIGHT);
+		e1.equipments[Slot.WEAPON.getID()] = new Item(1, Type.CRUCIFIX_1);
+		Team team1 = new Team(e1);
+		team1.addMember(new Entity("Autonight", Race.AUTOMATO, Classe.KNIGHT));
+		team1.addMember(new Entity("Golinight2", Race.GOLEM, Classe.KNIGHT));
+		Entity e2 = new Entity("Vampancer", Race.DARKIN, Classe.NECROMANCER);
+		e2.equipments[Slot.WEAPON.getID()] = new Item(1, Type.STAFF_1);
+		Team team2 = new Team(e2);
+		team2.addMember(new Entity("Darkancer", Race.DARKIN, Classe.NECROMANCER)); 
+		team2.addMember(new Entity("Abymancer", Race.ABYSSAL, Classe.NECROMANCER));
 		Battle battle = Battle.fight(team1, team2);
 		for(LogLine ll:battle.getLogLines()) {
 			if(!ll.isCanceled()) {
@@ -488,7 +514,11 @@ public class Entity implements Ordenable{
 	}
 	
 	public void damage(Entity owner, DamageSource damageSource) {
-		Damage damage = new Damage(owner, this, damageSource);
+		damage(owner, damageSource, damageSource.getStartDamage(owner, this));
+	}
+	
+	public void damage(Entity owner, DamageSource damageSource, double damageValue) {
+		Damage damage = new Damage(owner, this, damageSource, damageValue);
 		
 		if(!damage.isCanceled()) {
 			if(!damage.isEvaded()) {
@@ -557,7 +587,7 @@ public class Entity implements Ordenable{
 						}
 					}
 				}
-				LogLine ll = battle.addLogLine(damageSource.getDamageMessage(owner, this, (int)damage.getFinalDamage()));
+				LogLine ll = battle.addLogLine(damageSource.getDamageMessage(owner, this, damage));
 				for(Entity e:team.getAliveMembers()) {
 					double a = damage.getFinalDamage();
 					if(e.equals(this)) {
@@ -580,6 +610,15 @@ public class Entity implements Ordenable{
 					if(containsEffect(EffectType.ELETRIC_ARMOR)) {
 						if(chance(EffectType.ELETRIC_ARMOR.getValues()[0])) {
 							owner.damage(this, EffectType.ELETRIC_ARMOR);
+						}
+					}
+					if(damageSource == Skill.BLOODTHIRSTY_ATTACK) {
+						if(chance(Skill.BLOODTHIRSTY_ATTACK.getValues()[0])) {
+							applyEffect(new Effect(owner, (int)Skill.BLOODTHIRSTY_ATTACK.getValues()[1], EffectType.BLEEDING, Skill.BLOODTHIRSTY_ATTACK.getValues()));
+						}
+					}else if(damageSource == Skill.SKULL_SMASH) {
+						if(chance(Skill.SKULL_SMASH.getValues()[0])) {
+							applyEffect(new Effect(owner, -2, EffectType.STUNNED));
 						}
 					}
 				}
@@ -630,7 +669,7 @@ public class Entity implements Ordenable{
 				e.setValue(0, e.getValues()[0]*0.5);
 				
 				health = getMaxHealth()*e.getValues()[1];
-				battle.addLogLine(e.getType().getUsageMessage());
+				battle.addLogLine(e.getType().getUsageMessage(this,this));
 				return;
 			}
 		}

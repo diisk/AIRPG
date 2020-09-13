@@ -8,7 +8,7 @@ public class Damage {
 
 	private boolean critical;
 	private double startDamage;
-	private double holdedDamage;
+	private double holdedDamage = 0;
 	private double additionalDamage = 0;
 	private double finalDamage;
 	private boolean evaded;
@@ -17,19 +17,18 @@ public class Damage {
 	
 	private boolean canceled = false;
 	
-	public Damage(Entity owner, Entity target, DamageSource damageSource) {
+	public Damage(Entity owner, Entity target, DamageSource damageSource, double damageValue) {
 		this.owner=owner;
 		this.target=target;
-		evaded = chance(/*target.getEvasion()/(target.getEvasion()+owner.getAccuracy())*/0.5);
+		evaded = damageSource.canBeEvaded()?chance(target.getEvasion()/(target.getEvasion()+owner.getAccuracy())):false;
 		
 		if(!evaded) {
-			startDamage = damageSource.getStartDamage(owner, target);
-			holdedDamage = startDamage*getDamageReductionFor(target.getDefense());
-			if(damageSource==Skill.STAB) {
-				holdedDamage=0;
+			startDamage = damageValue;
+			if(!damageSource.ignoreDefense()) {
+				holdedDamage = startDamage*getDamageReductionFor(target.getDefense());
 			}
 			holdedDamage+=target.getValuesOf(0, EffectType.ENERGY_SHIELD)+target.getValuesOf(0, EffectType.FAITH_SHIELD);
-			critical = chance(owner.getCriticalChance()/100.0);
+			critical = damageSource.canBeCritical()?chance(owner.getCriticalChance()/100.0):false;
 			resetFinalDamage();
 		}
 	}

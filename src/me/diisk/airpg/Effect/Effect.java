@@ -47,6 +47,10 @@ public class Effect {
 				}
 			}
 			break;
+		case BLEEDING:
+		case STUNNED:
+			target.getBattle().addLogLine(type.getUsageMessage(owner, target));
+			break;
 		}
 	}
 	
@@ -63,6 +67,9 @@ public class Effect {
 		switch(type) {
 		case CELL_REGENERATION:
 			target.heal(owner, (int) values[0], type);
+			break;
+		case BLEEDING:
+			target.damage(owner, type, values[2]*target.getMaxHealth());
 			break;
 		}
 		return rounds!=0;

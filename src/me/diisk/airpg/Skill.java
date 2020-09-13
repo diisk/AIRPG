@@ -14,24 +14,24 @@ public enum Skill implements DamageSource, HealSource{
 			0.2,//CHANCE
 			3,//RODADAS
 			0.05//DANO POR RODADA(VIDA MAXIMA)
-	}),//FAZER
+	}),
 	
 	SKULL_SMASH(4,"Esmaga Crânio",0.13,0.15,"Causa dano baseado no poder de ataque, e possui 20% de chance de desnortear o alvo até o inicio do seu proximo turno.",100, new double[] {
 			0.2//CHANCE
-	}),//FAZER
+	}),
 	
 	BLOODY_EATER(5,"Devoradora Sangrenta",0.15,0.20,"Causa dano bruto baseado no poder de ataque.",100),
 	
-	STAB(6,"Estocada",0.12,0.15,"Causa dano baseado no poder de ataque ignorando bloqueios e defesas.",100),//TESTAR
+	STAB(6,"Estocada",0.12,0.15,"Causa dano baseado no poder de ataque ignorando bloqueios e defesas.",100),
 	
 	FURIOUS_BLADES(7,"Lâminas Furiosas",0.03,0.04,"Causa dano baseado no poder de ataque, podendo atacara até 5 vezes por rodada.",20),
 	
 	FIREBALL(8,"Bola de Fogo",0.15,0.25,"Causa dano baseado no poder de ataque, consome 100 de energia para causar dano a todos os inimigos.",100,new double[] {
 			100//ENERGIA PARA USAR
-	}),//FAZER
+	}),
 	
 	ILUMINATED_FIELD(9,"Campo Iluminado",0.15,0.20,"Causa dano baseado no poder de ataque, consome energia para curar todos os aliados em 5% da vida máxima.",100,new double[] {
-			30,//ENERGIA PARA USAR
+			10,//ENERGIA PARA USAR
 			0.05//VALOR DA CURA BASEADO NA VIDA MAXIMA DO ALVO
 	}),//FAZER
 	
@@ -92,6 +92,7 @@ public enum Skill implements DamageSource, HealSource{
 		this.maxDamage=maxDamage;
 		this.actionCost=actionCost;
 		this.baseDamage = baseDamage;
+		this.values=values;
 	}
 	
 	private String name;
@@ -131,6 +132,16 @@ public enum Skill implements DamageSource, HealSource{
 	public int getActionCost() {
 		return actionCost;
 	}
+	
+	public String getUsageMessage(Entity owner, Entity target) {
+		switch(this) {
+		case FIREBALL:
+			return owner.getName()+" usou bola de fogo gigante.";
+		case ILUMINATED_FIELD:
+			return owner.getName()+" usou "+getName()+".";
+		}
+		return name()+" SEM VALOR USAGEMESSAGE";
+	}
 
 	@Override
 	public double getStartDamage(Entity owner, Entity target) {
@@ -162,7 +173,7 @@ public enum Skill implements DamageSource, HealSource{
 		case ACCURATE_ATTACK:
 			break;
 		case BLOODTHIRSTY_ATTACK:
-			break;
+			return killer.getName()+" fez picadinho de "+target.getName()+".";
 		case BLOODY_EATER:
 			break;
 		case CONTROL_ATTACK:
@@ -180,7 +191,7 @@ public enum Skill implements DamageSource, HealSource{
 		case FAST_ARROW:
 			break;
 		case FIREBALL:
-			break;
+			return killer.getName()+" explodiu "+target.getName()+" com seu bolão de fogo.";
 		case FURIOUS_BLADES:
 			break;
 		case HALF_MOON_CUT:
@@ -190,7 +201,7 @@ public enum Skill implements DamageSource, HealSource{
 		case PRECISE_SHOT:
 			break;
 		case SKULL_SMASH:
-			break;
+			return killer.getName()+" esmagou "+target.getName()+" com seu martelão.";
 		case SPIRITUAL_SEED:
 			break;
 		case STAB:
@@ -199,16 +210,17 @@ public enum Skill implements DamageSource, HealSource{
 			break;
 		
 		}
-		return "@owner fumou @target na porrada.";
+		return killer.getName()+" fumou "+target.getName()+" na porrada.";
 	}
 
 	@Override
-	public String getDamageMessage(Entity owner, Entity target, int value) {
+	public String getDamageMessage(Entity owner, Entity target, Damage damage) {
+		int value = (int) damage.getFinalDamage();
 		switch(this) {
 		case ACCURATE_ATTACK:
-			break;
+			return owner.getLogName()+" deu uma paulada em "+target.getLogName()+" e causou "+value+" de dano.";
 		case BLOODTHIRSTY_ATTACK:
-			break;
+			return owner.getLogName()+" cortou "+target.getLogName()+" e causou "+value+" de dano.";
 		case BLOODY_EATER:
 			break;
 		case CONTROL_ATTACK:
@@ -226,17 +238,17 @@ public enum Skill implements DamageSource, HealSource{
 		case FAST_ARROW:
 			break;
 		case FIREBALL:
-			break;
+			return owner.getLogName()+" brincou de queimada com "+target.getLogName()+" e causou "+value+" de dano.";
 		case FURIOUS_BLADES:
 			break;
 		case HALF_MOON_CUT:
-			break;
+			return owner.getLogName()+" passou a lambida em "+target.getLogName()+" e causou "+value+" de dano.";
 		case ILUMINATED_FIELD:
 			break;
 		case PRECISE_SHOT:
 			break;
 		case SKULL_SMASH:
-			break;
+			return owner.getLogName()+" martelou "+target.getLogName()+" e causou "+value+" de dano.";
 		case SPIRITUAL_SEED:
 			break;
 		case STAB:
@@ -244,64 +256,74 @@ public enum Skill implements DamageSource, HealSource{
 		default:
 			break;
 		}
-		return "@owner deu um porradão em @target e causou @damage de dano.";
+		return owner.getLogName()+" deu um porradão em "+target.getLogName()+" e causou "+value+" de dano.";
 	}
 
 	@Override
 	public String getSuicideMessage(Entity owner) {
-		switch(this) {
-		case ACCURATE_ATTACK:
-			break;
-		case BLOODTHIRSTY_ATTACK:
-			break;
-		case BLOODY_EATER:
-			break;
-		case CONTROL_ATTACK:
-			break;
-		case CURSED_BLADE:
-			break;
-		case DISARMED_PUNCH:
-			break;
-		case DISEASE_WAVE:
-			break;
-		case DRUNK_FIST:
-			break;
-		case ELETRIC_CHARGE:
-			break;
-		case FAST_ARROW:
-			break;
-		case FIREBALL:
-			break;
-		case FURIOUS_BLADES:
-			break;
-		case HALF_MOON_CUT:
-			break;
-		case ILUMINATED_FIELD:
-			break;
-		case PRECISE_SHOT:
-			break;
-		case SKULL_SMASH:
-			break;
-		case SPIRITUAL_SEED:
-			break;
-		case STAB:
-			break;
-		default:
-			break;
-		}
-		return owner.getName()+" se matou, não sei como.";
+		return owner.getName()+" se matou com "+name()+", não sei como.";
 	}
 
 	@Override
 	public String getHealMessage(Entity owner, Entity target, int value) {
-		// TODO Auto-generated method stub
-		return null;
+		switch(this) {
+		case ILUMINATED_FIELD:
+			return owner.getLogName()+" iluminou "+target.getLogName()+" o curando em "+value+" de vida.";
+		}
+		return name()+" NAO DEFINIDO HEALMESSAGE";
 	}
 
 	@Override
 	public double getStartHeal(Entity owner, Entity target) {
-		// TODO Auto-generated method stub
+		switch(this) {
+		case ILUMINATED_FIELD:
+			return target.getMaxHealth()*values[1];
+		}
 		return 0;
+	}
+
+	@Override
+	public boolean canBeCritical() {
+		switch(this) {
+		case ACCURATE_ATTACK:
+		case BLOODTHIRSTY_ATTACK:
+		case BLOODY_EATER:
+		case CONTROL_ATTACK:
+		case CURSED_BLADE:
+		case DISARMED_PUNCH:
+		case DRUNK_FIST:
+		case FAST_ARROW:
+		case FURIOUS_BLADES:
+		case PRECISE_SHOT:
+		case SKULL_SMASH:
+		case STAB:
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean canBeEvaded() {
+		// TODO Auto-generated method stub
+		return true;
+	}
+
+	@Override
+	public boolean ignoreDefense() {
+		switch(this) {
+		case STAB:
+			return true;
+		}
+		return false;
+	}
+
+	@Override
+	public boolean isSingleTargetHeal() {
+		switch(this) {
+		case ILUMINATED_FIELD:
+			return false;
+		}
+		return true;
 	}
 	
 }

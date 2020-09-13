@@ -20,6 +20,20 @@ public class Team {
 		return members;
 	}
 	
+	public List<Entity> getRandomHealList(){
+		List<Entity> list = new ArrayList<Entity>();
+		for(Entity e:getAliveMembers()) {
+			if(e.getHealthPercent()<=0.4) {
+				list.add(e);
+			}else if(e.getHealthPercent()<=0.7) {
+				if(Utils.chance(0.5)) {
+					list.add(e);
+				}
+			}
+		}
+		return list;
+	}
+	
 	public List<Entity> getAliveMembers(){
 		CustomList<Entity> cl = new CustomList<Entity>();
 		for(Entity e:getAllMembers()) {
