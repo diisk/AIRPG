@@ -25,7 +25,10 @@ public class Damage {
 		if(!evaded) {
 			startDamage = damageSource.getStartDamage(owner, target);
 			holdedDamage = startDamage*getDamageReductionFor(target.getDefense());
-			holdedDamage+=target.getValuesOf(0, EffectType.ENERGY_SHIELD);
+			if(damageSource==Skill.STAB) {
+				holdedDamage=0;
+			}
+			holdedDamage+=target.getValuesOf(0, EffectType.ENERGY_SHIELD)+target.getValuesOf(0, EffectType.FAITH_SHIELD);
 			critical = chance(owner.getCriticalChance()/100.0);
 			resetFinalDamage();
 		}

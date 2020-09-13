@@ -20,22 +20,22 @@ public class Team {
 		return members;
 	}
 	
-	public List<Entity> getAllMembers(){
-		List<Entity> r = new ArrayList<Entity>();
-		r.add(leader);
-		r.addAll(members);
-		return r;
-	}
-	
-	public List<Entity> getInjurieds(){
+	public List<Entity> getAliveMembers(){
 		CustomList<Entity> cl = new CustomList<Entity>();
 		for(Entity e:getAllMembers()) {
-			if(e.getHealthPercent()<0.7) {
+			if(!e.isDead()) {
 				cl.add(e);
 			}
 		}
 		cl.orderBy(Entity.ORDER_BY_HEALTH, false, false);
 		return cl.toList();
+	}
+	
+	public List<Entity> getAllMembers(){
+		List<Entity> r = new ArrayList<Entity>();
+		r.add(leader);
+		r.addAll(members);
+		return r;
 	}
 	
 	public boolean isAllDead() {

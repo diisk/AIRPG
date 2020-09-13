@@ -30,7 +30,7 @@ public enum EffectType implements DamageSource, HealSource{
 					0.25,
 					0.5
 			}),
-	HEALER(5,"Curandeiro","Todas as habilidades de cura sao 100% mais efetivas.",
+	HEALER(5,"Curandeiro","Todas as habilidades de cura sao 100% mais efetivas.",//TESTAR
 			new double[] {
 					1
 			}),
@@ -59,11 +59,11 @@ public enum EffectType implements DamageSource, HealSource{
 			new double[] {
 					0.5
 			}),
-	DARK_POWER(12,"Poder Sombrio","Aumenta toda cura recebida em 50% alem de ignorar as defesas do inimigo.",
+	DARK_POWER(12,"Poder Sombrio","Aumenta toda cura recebida em 50% alem de ignorar as defesas do inimigo.",//TESTAR CURA
 			new double[] {
 					0.5
 			}),
-	BOUNCY_HEAL(13,"Cura Saltitante","Suas curas possuem 80% de chance de saltar para um alvo adicional diferente, a chance e a cura reduz pela metade em cada salto.",//FAZER AINDA
+	BOUNCY_HEAL(13,"Cura Saltitante","Suas curas possuem 80% de chance de saltar para um alvo adicional diferente, a chance e a cura reduz pela metade em cada salto.",//TESTAR
 			new double[] {
 					0.8
 			}),
@@ -96,13 +96,13 @@ public enum EffectType implements DamageSource, HealSource{
 			new double[] {
 					0.3
 			}),
-	SACRED_PROTECTION(20,"Protecao Sagrada","Suas curas aplicam um escudo adicional ate o inicio do seu proximo turno, que absorve dano de ate 40% do seu poder de ataque no proximo ataque recebido.",//FAZER AINDA
+	SACRED_PROTECTION(20,"Protecao Sagrada","Suas curas aplicam um escudo adicional ate o inicio do seu proximo turno, que absorve dano de ate 40% do seu poder de ataque no proximo ataque recebido.",//TESTAR
 			new double[] {
 					0.4
 			}),
-	NATURAL_POLINATION(21,"Polinizacao Natural","Suas curas recebem um adicional de 100% aplicado durante as proximas 3 rodadas.",//FAZER AINDA
+	NATURAL_POLINATION(21,"Polinizacao Natural","Suas curas recebem um adicional de 33% por rodada aplicado durante as proximas 3 rodadas.",//TESTAR
 			new double[] {
-					1,
+					0.33,
 					3
 			}),
 	LUCKY_HANDS(22,"Maos da Sorte","Seus ataques causam efeitos aleatorios a cada hit.(DEFESA 0, CORTA CURA 50%, 20% DANO ADICIONAL)",
@@ -116,7 +116,7 @@ public enum EffectType implements DamageSource, HealSource{
 					0.1,
 					0.5
 			}),
-	FAITH_ON_CONTROL(24,"Fe no Controle","Seus ataques possuem 20% de chance de curar 15% da vida maxima do alvo mais injuriado.",//FAZER AINDA
+	FAITH_ON_CONTROL(24,"Fe no Controle","Seus ataques possuem 20% de chance de curar 15% da vida maxima do alvo mais injuriado.",//TESTAR
 			new double[] {
 				0.2,
 				0.15
@@ -141,6 +141,12 @@ public enum EffectType implements DamageSource, HealSource{
 	BUDHA_HANDS(30,"Mão de Budha","Aumenta o poder de ataque em cada acerto durante a rodada.",EffectType.TIME_RESET_AND_VALUE_ADD,true,false),
 	
 	BOUNCING_REBOUND(31,"Rebate Saltitante","Recebeu um efeito de cura saltitante recentemente.",EffectType.DO_NOTHING,false,true),
+	
+	FAITH_SHIELD(32,"Escudo de Fe","Absorve uma parte do dano recebido durante o proximo ataque.",EffectType.TIME_RESET_AND_VALUE_RESET,true,false),
+	
+	CELL_REGENERATION(33,"Regeneração Celular","Esta com efeito de cura por rodada.",EffectType.TIME_RESET_AND_VALUE_RESET,false,false),
+	
+	LIFE_STEAL(34,"Roubo de Vida","Cura ao causar dano a um inimigo."),
 	
 	//(,"",""),
 	;
@@ -239,40 +245,40 @@ public enum EffectType implements DamageSource, HealSource{
 	}
 
 	@Override
-	public String getDeathMessage() {
+	public String getDeathMessage(Entity killer, Entity target) {
 		switch(this){
 		case DRAGON_CLAW:
-			return "@owner rasgou @target com sua garra de dragao.";
+			return killer.getName()+" rasgou "+target.getName()+" com sua garra de dragao.";
 		case ELETRIC_ARMOR:
-			return "@owner desintegrou @target com um choquinho.";
+			return killer.getName()+" desintegrou "+target.getName()+" com um choquinho.";
 		case THE_EXECUTIONER:
-			return "@owner executou @target com um paranaue ninja.";
+			return killer.getName()+" executou "+target.getName()+" com um paranaue ninja.";
 		}
-		return null;
+		return name()+" SEM VALOR DEFINIDO EM DEATHMESSAGE";
 	}
 
 	@Override
-	public String getDamageMessage() {
+	public String getDamageMessage(Entity owner, Entity target, int value) {
 		switch(this){
 		case DRAGON_CLAW:
-			return "@owner causou @damage de dano a @target com sua garra de dragao.";
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com sua garra de dragao.";
 		case ELETRIC_ARMOR:
-			return "@owner causou @damage de dano a @target com um choquinho.";
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com um choquinho.";
 		}
-		return null;
+		return name()+" SEM VALOR DEFINIDO EM DAMAGEMESSAGE";
 	}
 
 	@Override
-	public String getSuicideMessage() {
+	public String getSuicideMessage(Entity owner) {
 		switch(this){
 		case DRAGON_CLAW:
-			return "@owner morreu tentando se masturbar com sua garra de dragao..";
+			return owner.getName()+" morreu tentando se masturbar com sua garra de dragao..";
 		case ELETRIC_ARMOR:
-			return "@owner se queimou vestindo a roupinha eletrica.";
+			return owner.getName()+" se queimou vestindo a roupinha eletrica.";
 		case THE_EXECUTIONER:
-			return "O cara se executou mano, COMO??? @owner reporta o admin plz!!!";
+			return "O cara se executou mano, COMO??? "+owner.getName()+" reporta o admin plz!!!";
 		}
-		return null;
+		return name()+" SEM VALOR DEFINIDO EM SUICIDEMESSAGE";
 	}
 	
 	public String getUsageMessage() {
@@ -332,86 +338,41 @@ public enum EffectType implements DamageSource, HealSource{
 		case UNDEAD:
 			return "O morto vivo @owner ressucitou CAUSE THIS IS THRILLER OH OH...";
 		}
-		return null;
+		return name()+" SEM VALOR DEFINIDO EM USAGEMESSAGE";
 	}
 
 	@Override
 	public String getHealMessage(Entity owner, Entity target, int value) {
-		switch(this) {
-		case ACCURATE_SHOT:
-			break;
-		case BLOODSUCKER:
-			break;
-		case BLOOD_STEALER:
-			break;
-		case BOUNCING_REBOUND:
-			return owner.getName()+" curou "+value+" de vida de "+target.getName()+" com "+BOUNCY_HEAL.getName()+".";
-		case BOUNCY_HEAL:
-			break;
-		case BUDHA_CONCENTRATION:
-			break;
-		case BUDHA_HANDS:
-			break;
-		case CORRUPTION:
-			break;
-		case CURSE_OF_DEFENSE:
-			break;
-		case CURSE_OF_HEAL:
-			break;
-		case DARK_POWER:
-			break;
-		case DIVINE_DANCER:
-			break;
-		case DRAGON_CLAW:
-			break;
-		case ELDER:
-			break;
-		case ELETRIC_ARMOR:
-			break;
-		case ENERGY_SHIELD:
-			break;
-		case ENERGY_STEALER:
-			break;
-		case FAITH_ON_CONTROL:
-			break;
-		case FURY:
-			break;
-		case HEALER:
-			break;
-		case KNIGHT_SPIRIT:
-			break;
-		case LIZARD_BLOOD:
-			break;
-		case LUCKY:
-			break;
-		case LUCKY_HANDS:
-			break;
-		case NATURAL_POLINATION:
-			break;
-		case PREDATOR:
-			break;
-		case SACRED_PROTECTION:
-			break;
-		case SACRIFICE:
-			break;
-		case THE_EXECUTIONER:
-			break;
-		case THE_RELENTLESS:
-			break;
-		case TRAINED_KILLER:
-			break;
-		case UNDEAD:
-			break;
-		default:
-			break;
-		
+		if(!owner.equals(target)) {
+			switch(this) {
+			case BOUNCING_REBOUND:
+				return owner.getLogName()+" curou "+value+" de vida de "+target.getLogName()+" com "+BOUNCY_HEAL.getName()+".";
+			case CELL_REGENERATION:
+				return owner.getLogName()+" curou "+value+" de vida de "+target.getLogName()+" com "+getName()+".";
+			case FAITH_ON_CONTROL:
+				return owner.getLogName()+" curou "+value+" de vida de "+target.getLogName()+" com "+getName()+".";
+			}
+		}else {
+			switch(this) {
+			case BOUNCING_REBOUND:
+				return owner.getLogName()+" curou "+value+" da propria vida com "+BOUNCY_HEAL.getName()+".";
+			case CELL_REGENERATION:
+				return owner.getLogName()+" curou "+value+" da propria vida com "+getName()+".";
+			case FAITH_ON_CONTROL:
+				return owner.getLogName()+" curou "+value+" da propria vida com "+getName()+".";
+			case LIFE_STEAL:
+				return owner.getLogName()+" roubou "+value+" de vida.";
+			}
 		}
-		return null;
+		return name()+" SEM VALOR DEFINIDO EM HEALMESSAGE";
 	}
 
 	@Override
 	public double getStartHeal(Entity owner, Entity target) {
-		// TODO Auto-generated method stub
+		switch(this) {
+		case FAITH_ON_CONTROL:
+			return target.getMaxHealth()*values[1];
+		}
 		return 0;
 	}
 	

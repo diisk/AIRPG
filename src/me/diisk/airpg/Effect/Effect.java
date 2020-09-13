@@ -38,7 +38,7 @@ public class Effect {
 		case BOUNCING_REBOUND:
 			target.removeEffect(id);
 			target.heal(owner, (int) values[1], type);
-			for(Entity e:owner.getTeam().getInjurieds()) {
+			for(Entity e:owner.getTeam().getAliveMembers()) {
 				if(!e.equals(target)) {
 					if(chance(values[0])) {
 						e.applyEffect(new Effect(owner, 1, type, new double[] {values[0]/2,values[1]/2}));
@@ -59,6 +59,11 @@ public class Effect {
 			rounds--;
 		}else if(rounds==-2) {
 			return !owner.equals(turnOn);
+		}
+		switch(type) {
+		case CELL_REGENERATION:
+			target.heal(owner, (int) values[0], type);
+			break;
 		}
 		return rounds!=0;
 	}

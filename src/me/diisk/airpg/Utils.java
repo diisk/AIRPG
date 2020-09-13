@@ -19,14 +19,6 @@ public class Utils {
 		return 0;
 	}
 	
-	public static String translateMessage(String owner, String target, String damage, String message) {
-		String r = message;
-		r = r.replaceAll("@owner", owner);
-		r = r.replaceAll("@target", target);
-		r = r.replaceAll("@damage", damage);
-		return r;
-	}
-	
 	public static void main(String[] args) {
 		System.out.println("1: "+getDamageReductionFor(1));
 		System.out.println("100: "+getDamageReductionFor(100));

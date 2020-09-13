@@ -30,7 +30,7 @@ public class Battle {
 	}
 	
 	private Team team1,team2;
-	private int maxRounds;
+	private int maxRounds,round;
 	private List<LogLine> logLines = new ArrayList<LogLine>();
 	
 	private Battle(Team team1, Team team2) {
@@ -50,7 +50,11 @@ public class Battle {
 		}
 	}
 	
-	public Team getEnemiesFor(Team team) {
+	public int getRound() {
+		return round;
+	}
+	
+	public Team getEnemyTeam(Team team) {
 		if(team.equals(team1)) {
 			return team2;
 		}else {
@@ -91,29 +95,35 @@ public class Battle {
 		return logLines;
 	}
 	
+	public boolean isRunning() {
+		return !team1.isAllDead()&&!team2.isAllDead()&&round<maxRounds;
+	}
+	
 	public static Battle fight(Team team1, Team team2) {
 		Battle battle = new Battle(team1, team2);
-		int round = 0;
+		battle.round = 0;
 		CustomList<Entity> entities = battle.getEntities();
 		entities.orderBy(Entity.ORDER_BY_INITIATIVE, false, true);
 		List<Entity> ents = entities.toList();
 		all:
 		while(true) {
 			for(Entity en:ents) {
-				if(team1.isAllDead() || team2.isAllDead() || round>=battle.maxRounds) {
+				if(!battle.isRunning()) {
 					break all;
 				}
 				if(!en.isDead()) {
-					if(round>0) {
+					if(battle.round>0) {
 						battle.addLogLine("Fim do Round");
 					}
-					round++;
-					battle.addLogLine("Iniciando Round "+round+"("+en.getName()+"):");
+					battle.round++;
+					battle.addLogLine("Iniciando Round "+battle.round+"("+en.getName()+"):");
 					for(Entity enn:ents) {
-						enn.roundUpdate(en);
+						if(!enn.isDead()) {
+							enn.roundUpdate(en);
+						}
 					}
 					en.turnOn();
-					while(en.useSkill(battle));
+					while(en.useSkill());
 				}
 			}
 		}
