@@ -215,47 +215,74 @@ public enum Skill implements DamageSource, HealSource{
 	@Override
 	public String getDamageMessage(Entity owner, Entity target, Damage damage) {
 		int value = (int) damage.getFinalDamage();
+		String r = owner.getLogName()+" deu um porradão em "+target.getLogName()+" e causou "+value+" de dano.";
 		switch(this) {
 		case ACCURATE_ATTACK:
-			return owner.getLogName()+" deu uma paulada em "+target.getLogName()+" e causou "+value+" de dano.";
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com seu porrete.";
 		case BLOODTHIRSTY_ATTACK:
-			return owner.getLogName()+" cortou "+target.getLogName()+" e causou "+value+" de dano.";
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com seus farejadores de sangue.";
 		case BLOODY_EATER:
-			break;
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com sua devoradora sangrenta.";
 		case CONTROL_ATTACK:
-			break;
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com sua bolinha da miley cyrus.";
 		case CURSED_BLADE:
-			break;
-		case DISARMED_PUNCH:
-			return owner.getLogName()+" deu um soquinho em "+target.getLogName()+" e causou "+value+" de dano.";
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com seus 15 centimetros.";
 		case DISEASE_WAVE:
-			break;
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com as bolas do demonio.";
 		case DRUNK_FIST:
-			break;
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com sua cerveja geladinha (ou não).";
 		case ELETRIC_CHARGE:
-			break;
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com seu espadão de mel.";
 		case FAST_ARROW:
-			break;
-		case FIREBALL:
-			return owner.getLogName()+" brincou de queimada com "+target.getLogName()+" e causou "+value+" de dano.";
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com seu arquinho.";
 		case FURIOUS_BLADES:
-			break;
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com suas facas rasga-lixo.";
 		case HALF_MOON_CUT:
-			return owner.getLogName()+" passou a lambida em "+target.getLogName()+" e causou "+value+" de dano.";
-		case ILUMINATED_FIELD:
-			break;
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com seu corta mato.";
 		case PRECISE_SHOT:
-			break;
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com seu arco kid bengala.";
 		case SKULL_SMASH:
-			return owner.getLogName()+" martelou "+target.getLogName()+" e causou "+value+" de dano.";
-		case SPIRITUAL_SEED:
-			break;
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com seu martelão.";
 		case STAB:
-			break;
-		default:
-			break;
+			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com a sua estocada.";
 		}
-		return owner.getLogName()+" deu um porradão em "+target.getLogName()+" e causou "+value+" de dano.";
+		if(damage.isCritical()) {
+			switch(this) {
+			case ACCURATE_ATTACK:
+				return owner.getLogName()+" deu uma paulada em "+target.getLogName()+" e causou "+value+" de dano.";
+			case BLOODTHIRSTY_ATTACK:
+				return owner.getLogName()+" cortou "+target.getLogName()+" e causou "+value+" de dano.";
+			case BLOODY_EATER:
+				break;
+			case CONTROL_ATTACK:
+				break;
+			case CURSED_BLADE:
+				break;
+			case DISARMED_PUNCH:
+				return owner.getLogName()+" deu um soquinho em "+target.getLogName()+" e causou "+value+" de dano.";
+			case DRUNK_FIST:
+				break;
+			case FAST_ARROW:
+				break;
+			case FIREBALL:
+				return owner.getLogName()+" brincou de queimada com "+target.getLogName()+" e causou "+value+" de dano.";
+			case FURIOUS_BLADES:
+				break;
+			case ILUMINATED_FIELD:
+				break;
+			case PRECISE_SHOT:
+				break;
+			case SKULL_SMASH:
+				return owner.getLogName()+" martelou "+target.getLogName()+" e causou "+value+" de dano.";
+			case SPIRITUAL_SEED:
+				break;
+			case STAB:
+				break;
+			default:
+				break;
+			}
+		}
+		return r;
 	}
 
 	@Override

@@ -41,6 +41,10 @@ public class Damage {
 		}
 	}
 	
+	public boolean isCritical() {
+		return critical;
+	}
+	
 	public double getStartDamage() {
 		return startDamage;
 	}
