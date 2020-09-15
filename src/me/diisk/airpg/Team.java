@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.diisk.airpg.CustomList.CustomList;
+import me.diisk.airpg.Entity.Entity;
 
 public class Team {
 

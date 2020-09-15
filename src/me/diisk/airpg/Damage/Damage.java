@@ -1,8 +1,9 @@
-package me.diisk.airpg;
+package me.diisk.airpg.Damage;
 
 import static me.diisk.airpg.Utils.*;
 
 import me.diisk.airpg.Effect.EffectType;
+import me.diisk.airpg.Entity.Entity;
 
 public class Damage {
 
@@ -38,6 +39,14 @@ public class Damage {
 		if(finalDamage<0){
 			finalDamage=0;
 		}
+	}
+	
+	public double getStartDamage() {
+		return startDamage;
+	}
+	
+	public double getHoldedDamage() {
+		return holdedDamage;
 	}
 	
 	public double getFinalDamage() {

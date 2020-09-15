@@ -1,5 +1,7 @@
 package me.diisk.airpg;
 
+import me.diisk.airpg.Entity.Entity;
+
 public interface HealSource {
 
 	public abstract String getHealMessage(Entity owner, Entity target, int value);
@@ -8,6 +10,6 @@ public interface HealSource {
 	
 	public abstract double getStartHeal(Entity owner, Entity target);
 	
-	public abstract boolean isSingleTargetHeal();
+	public abstract boolean isExpansiveHeal();
 	
 }

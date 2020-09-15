@@ -1,5 +1,6 @@
-package me.diisk.airpg;
+package me.diisk.airpg.Entity;
 
+import me.diisk.airpg.Item.Group;
 import me.diisk.airpg.Item.Item;
 import me.diisk.airpg.Item.Slot;
 import me.diisk.airpg.Item.Type;
@@ -11,8 +12,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import me.diisk.airpg.Attributes;
+import me.diisk.airpg.Battle;
 import me.diisk.airpg.Battle.LogLine;
+import me.diisk.airpg.HealSource;
+import me.diisk.airpg.Skill;
+import me.diisk.airpg.Team;
 import me.diisk.airpg.CustomList.Ordenable;
+import me.diisk.airpg.Damage.Damage;
+import me.diisk.airpg.Damage.DamageSource;
 import me.diisk.airpg.Effect.Effect;
 import me.diisk.airpg.Effect.EffectType;
 
@@ -76,6 +84,11 @@ public class Entity implements Ordenable{
 			for(Item item:equipments) {
 				if(item!=null) {
 					mod+=item.getMods().get(i);
+					if(item.getGroup()==Group.SHIELD) {
+						applyEffect(new Effect(this, -1,EffectType.SHIELD,EffectType.SHIELD.getValues()[0]*(1+item.getGrade().getID())));
+					}else if(item.getGroup()==Group.GRIMOIRE) {
+						applyEffect(new Effect(this, -1,EffectType.GRIMOIRE,EffectType.GRIMOIRE.getValues()[0]*(1+item.getGrade().getID())));
+					}
 				}
 				
 			}
@@ -117,7 +130,9 @@ public class Entity implements Ordenable{
 	}
 	
 	private double getEnergyRegen() {
-		return attributes.get(ENERGY_REGENERATION);
+		double r = attributes.get(ENERGY_REGENERATION);
+		r*=1+getValuesOf(0, EffectType.GRIMOIRE);
+		return r;
 	}
 	
 	public double getAttackPower() {
@@ -179,7 +194,7 @@ public class Entity implements Ordenable{
 		actionPoints=100;
 	}
 	
-	public void roundUpdate(Entity turnOn) {
+	public void roundUpdate() {
 		health+=getHealthRegen();
 		energy+=getEnergyRegen();
 		if(health>getMaxHealth()) {
@@ -189,8 +204,8 @@ public class Entity implements Ordenable{
 			energy = getMaxEnergy();
 		}
 		for(Effect e:getEffects()) {
-			if(!e.update(turnOn, this)) {
-				removeEffect(e.getID());
+			if(!e.update(this)) {
+				removeEffect(e.getID(), false);
 			}
 		}
 	}
@@ -199,18 +214,20 @@ public class Entity implements Ordenable{
 		EffectType type = effect.getType();
 		List<Effect> efs = getEffectsBy(type);
 		Effect eff = null;
-		if(efs.size()>0) {
-			efs = getEffectsBy(effect.getOwner(), type);
-			if(efs.size()>0) {
+		for(Effect ef:getEffectsBy(type)) {
+			if(ef.getOwner().equals(effect.getOwner())) {
+				eff = null;
 				if(type.isUnique()) {
-					eff = efs.get(0);
+					eff = ef;
 				}
+				break;
 			}else {
-				if(!type.isDuplicate()) {
-					if(type.isUnique()) {
-						eff = getEffectsBy(type).get(0);
-					}
-				}
+				eff = ef;
+			}
+		}
+		if(eff!=null) {
+			if(!eff.getOwner().equals(effect.getOwner())&&type.isDuplicate()) {
+				eff = null;
 			}
 		}
 		if(eff==null) {
@@ -303,10 +320,11 @@ public class Entity implements Ordenable{
 		return r;
 	}
 	
-	public void removeEffect(int id) {
+	public void removeEffect(int id, boolean forced) {
 		for(int i=0;i<effects.size();i++) {
 			Effect e = effects.get(i);
 			if(e.getID()==id) {
+				e.onRemove(forced, this);
 				effects.remove(i);
 				break;
 			}
@@ -337,90 +355,119 @@ public class Entity implements Ordenable{
 		if(weapon!=null) {
 			skill = weapon.getSkill();
 		}
-		if(energy>=skill.getEnergyCost()) {
-			if(actionPoints>=skill.getActionCost()) {
-				energy-=skill.getEnergyCost();
-				actionPoints-=skill.getActionCost();
-				Entity target = null;
-				double ag1 = 0;
-				for(Entity e:aggroList.keySet()) {
-					if(!e.isDead()) {
-						if(target==null) {
+		if(actionPoints>=skill.getActionCost()) {
+			actionPoints-=skill.getActionCost();
+			Entity target = null;
+			double ag1 = 0;
+			for(Entity e:aggroList.keySet()) {
+				if(!e.isDead()) {
+					if(target==null) {
+						target = e;
+						ag1 = aggroList.get(e);
+					}else {
+						double ag2 = aggroList.get(e);
+						if(ag2>ag1) {
 							target = e;
-							ag1 = aggroList.get(e);
-						}else {
-							double ag2 = aggroList.get(e);
-							if(ag2>ag1) {
-								target = e;
-								ag1 = ag2;
-							}
+							ag1 = ag2;
 						}
 					}
 				}
-				if(target!=null) {
-					double mod;
-					switch(skill) {
-					case ACCURATE_ATTACK:
-						break;
-					case BLOODTHIRSTY_ATTACK:
-						break;
-					case BLOODY_EATER:
-						break;
-					case CONTROL_ATTACK:
-						break;
-					case CURSED_BLADE:
-						break;
-					case DISARMED_PUNCH:
-						break;
-					case DISEASE_WAVE:
-						break;
-					case DRUNK_FIST:
-						break;
-					case ELETRIC_CHARGE:
-						break;
-					case FAST_ARROW:
-						break;
-					case FIREBALL:
+			}
+			if(target!=null) {
+				double mod;
+				switch(skill) {
+				case ACCURATE_ATTACK:
+					break;
+				case BLOODTHIRSTY_ATTACK:
+					break;
+				case BLOODY_EATER:
+					break;
+				case CONTROL_ATTACK:
+					if(chance(skill.getValues()[0])) {
+						actionPoints+=skill.getValues()[1];
+					}
+					break;
+				case CURSED_BLADE:
+					break;
+				case DISARMED_PUNCH:
+					break;
+				case DISEASE_WAVE:
+					if(energy>=getMaxEnergy()) {
+						energy = 0;
+						for(Entity e:target.getTeam().getAliveMembers()) {
+							e.applyEffect(new Effect(this, (int)skill.getValues()[0], EffectType.MARK_OF_DEATH, getMaxEnergy()*skill.getValues()[1]));
+						}
+						return true;
+					}
+					break;
+				case DRUNK_FIST:
+					if(chance(skill.getValues()[0])) {
+						actionPoints=100;
+					}
+					break;
+				case ELETRIC_CHARGE:
+					if(actionPoints<99) {
 						mod = skill.getValues()[0];
 						if(energy>=mod) {
 							energy-=mod;
+						}else {
+							return false;
+						}
+					}
+					break;
+				case FAST_ARROW:
+					break;
+				case FIREBALL:
+					mod = skill.getValues()[0];
+					if(energy>=mod) {
+						energy-=mod;
+						battle.addLogLine(skill.getUsageMessage(this, this));
+						for(Entity e:target.getTeam().getAliveMembers()) {
+							e.damage(this, skill);
+						}
+						return true;
+					}
+					break;
+				case FURIOUS_BLADES:
+					break;
+				case HALF_MOON_CUT:
+					break;
+				case ILUMINATED_FIELD:
+					mod = skill.getValues()[0];
+					if(energy>=mod) {
+						List<Entity> ts = team.getRandomHealList();
+						if(ts.size()>=3 || (ts.size()>=1&&ts.get(0).getHealthPercent()<=0.4)) {
+							energy-=mod;
 							battle.addLogLine(skill.getUsageMessage(this, this));
-							for(Entity e:target.getTeam().getAliveMembers()) {
-								e.damage(this, skill);
+							for(Entity e:team.getAliveMembers()) {
+								e.heal(this, skill);
 							}
 							return true;
 						}
-						break;
-					case FURIOUS_BLADES:
-						break;
-					case HALF_MOON_CUT:
-						break;
-					case ILUMINATED_FIELD:
-						mod = skill.getValues()[0];
-						if(energy>=mod) {
-							List<Entity> ts = team.getRandomHealList();
-							if(ts.size()>=2 || (ts.size()==1&&ts.get(0).getHealthPercent()<=0.4)) {
+					}
+					break;
+				case PRECISE_SHOT:
+					break;
+				case SKULL_SMASH:
+					break;
+				case SPIRITUAL_SEED:
+					mod = skill.getValues()[0];
+					if(energy>=mod) {
+						List<Entity> ts = team.getRandomHealList();
+						for(Entity e:ts) {
+							if(e.getHealthPercent()<=0.6) {
 								energy-=mod;
-								battle.addLogLine(skill.getUsageMessage(this, this));
-								for(Entity e:ts) {
-									e.heal(this, skill);
-								}
+								e.heal(this, skill);
 								return true;
 							}
 						}
-						break;
-					case PRECISE_SHOT:
-						break;
-					case SKULL_SMASH:
-						break;
-					case SPIRITUAL_SEED:
-						break;
-					case STAB:
-						break;		
 					}
-					target.damage(this, skill);
-					return true;
+					break;
+				case STAB:
+					break;		
 				}
+				target.damage(this, skill);
+				return true;
 			}
 		}
 		return false;
@@ -454,13 +501,13 @@ public class Entity implements Ordenable{
 		}
 		if(healSource!=EffectType.LIFE_STEAL) {
 			if(owner.containsEffect(EffectType.BOUNCY_HEAL)) {
-				if(healSource.isSingleTargetHeal()) {
+				if(healSource.isExpansiveHeal()) {
 					double mod = EffectType.BOUNCY_HEAL.getValues()[0];
 					List<Entity> injurieds = owner.team.getAliveMembers();
 					for(Entity e:injurieds) {
 						if(!e.equals(this)) {
 							if(chance(mod)) {
-								e.applyEffect(new Effect(owner, 1, EffectType.BOUNCING_REBOUND, new double[] {mod/2,finalHeal*mod}));
+								e.applyEffect(new Effect(owner, 1, EffectType.BOUNCING_REBOUND, new double[] {mod/2,value*mod}));
 							}
 							break;
 						}
@@ -468,10 +515,10 @@ public class Entity implements Ordenable{
 				}	
 			}
 			if(owner.containsEffect(EffectType.SACRED_PROTECTION)) {
-				applyEffect(new Effect(owner, -2, EffectType.FAITH_SHIELD, new double[] {EffectType.SACRED_PROTECTION.getValues()[0]*owner.getAttackPower()}));
+				applyEffect(new Effect(owner, -2, EffectType.FAITH_SHIELD, EffectType.SACRED_PROTECTION.getValues()[0]*owner.getAttackPower()));
 			}
-			if(owner.containsEffect(EffectType.NATURAL_POLINATION)) {
-				applyEffect(new Effect(owner, (int)EffectType.NATURAL_POLINATION.getValues()[1], EffectType.CELL_REGENERATION, new double[] {EffectType.NATURAL_POLINATION.getValues()[0]*finalHeal}));
+			if(owner.containsEffect(EffectType.NATURAL_POLINATION) && healSource!=EffectType.CELL_REGENERATION) {
+				applyEffect(new Effect(owner, (int)EffectType.NATURAL_POLINATION.getValues()[1], EffectType.CELL_REGENERATION, EffectType.NATURAL_POLINATION.getValues()[0]*value));
 			}
 		}
 	}
@@ -485,16 +532,17 @@ public class Entity implements Ordenable{
 	}
 	
 	public static void main(String[] args) {
-		Entity e1 = new Entity("Golinight", Race.AUTOMATO, Classe.KNIGHT);
-		e1.equipments[Slot.WEAPON.getID()] = new Item(1, Type.CRUCIFIX_1);
+		Entity e1 = new Entity("Golinight", Race.ABYSSAL, Classe.DRUID);
+		e1.equipments[Slot.WEAPON.getID()] = new Item(1, Type.DEMONIAC_ORB_1);
+		e1.equipments[Slot.WEAPON_SECONDARY.getID()] = new Item(1, Type.GRIMOIRE_4);
 		Team team1 = new Team(e1);
-		team1.addMember(new Entity("Autonight", Race.AUTOMATO, Classe.KNIGHT));
-		team1.addMember(new Entity("Golinight2", Race.GOLEM, Classe.KNIGHT));
+		//team1.addMember(new Entity("Autonight", Race.AUTOMATO, Classe.KNIGHT));
+		//team1.addMember(new Entity("Golinight2", Race.GOLEM, Classe.KNIGHT));
 		Entity e2 = new Entity("Vampancer", Race.DARKIN, Classe.NECROMANCER);
 		e2.equipments[Slot.WEAPON.getID()] = new Item(1, Type.STAFF_1);
 		Team team2 = new Team(e2);
-		team2.addMember(new Entity("Darkancer", Race.DARKIN, Classe.NECROMANCER)); 
-		team2.addMember(new Entity("Abymancer", Race.ABYSSAL, Classe.NECROMANCER));
+		//team2.addMember(new Entity("Darkancer", Race.DARKIN, Classe.NECROMANCER)); 
+		//team2.addMember(new Entity("Abymancer", Race.ABYSSAL, Classe.NECROMANCER));
 		Battle battle = Battle.fight(team1, team2);
 		for(LogLine ll:battle.getLogLines()) {
 			if(!ll.isCanceled()) {
@@ -519,16 +567,21 @@ public class Entity implements Ordenable{
 	
 	public void damage(Entity owner, DamageSource damageSource, double damageValue) {
 		Damage damage = new Damage(owner, this, damageSource, damageValue);
-		
+		if(damageSource.canBeEvaded()&&containsEffect(EffectType.SHIELD)&&!damageSource.ignoreDefense()) {
+			if(chance(getValuesOf(0, EffectType.SHIELD))) {
+				battle.addLogLine(getName()+" defendeu "+damageSource.getName()+" de "+owner.getName()+".");
+				return;
+			}
+		}
 		if(!damage.isCanceled()) {
 			if(!damage.isEvaded()) {
 				if(containsEffect(EffectType.ENERGY_SHIELD)) {
 					Effect e = getEffectsBy(this,EffectType.ENERGY_SHIELD).get(0);
-					removeEffect(e.getID());
+					removeEffect(e.getID(),true);
 				}
 				if(containsEffect(EffectType.FAITH_SHIELD)) {
 					Effect e = getEffectsBy(EffectType.FAITH_SHIELD).get(0);
-					removeEffect(e.getID());
+					removeEffect(e.getID(),true);
 				}
 				if(owner.containsEffect(EffectType.DRAGON_CLAW)) {
 					damage.addAdditionalDamage(EffectType.DRAGON_CLAW.getStartDamage(owner, this));

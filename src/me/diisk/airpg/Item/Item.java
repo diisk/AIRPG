@@ -21,4 +21,15 @@ public class Item {
 		return type.getSkill();
 	}
 	
+	public Group getGroup() {
+		return type.getGroup();
+	}
+	
+	public int getAmount() {
+		return amount;
+	}
+	
+	public Grade getGrade() {
+		return type.getGrade();
+	}
 }

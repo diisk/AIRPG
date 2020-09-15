@@ -2,6 +2,10 @@ package me.diisk.airpg;
 
 import java.util.Random;
 
+import me.diisk.airpg.Damage.Damage;
+import me.diisk.airpg.Damage.DamageSource;
+import me.diisk.airpg.Entity.Entity;
+
 public enum Skill implements DamageSource, HealSource{
 	
 	DISARMED_PUNCH(0,"Soco Desarmado",10,"Causa 10 dano ao alvo.",100),
@@ -31,31 +35,32 @@ public enum Skill implements DamageSource, HealSource{
 	}),
 	
 	ILUMINATED_FIELD(9,"Campo Iluminado",0.15,0.20,"Causa dano baseado no poder de ataque, consome energia para curar todos os aliados em 5% da vida máxima.",100,new double[] {
-			10,//ENERGIA PARA USAR
+			30,//ENERGIA PARA USAR
 			0.05//VALOR DA CURA BASEADO NA VIDA MAXIMA DO ALVO
-	}),//FAZER
+	}),
 	
 	SPIRITUAL_SEED(10,"Semente Espiritual",0.15,0.20,"Causa dano baseado no poder de ataque, consome energia para curar 10% da vida perdida do alvo mais injuriado.",100, new double[] {
-			25,//ENERGIA PARA USAR
-			0.1//VALOR DA CURA BASEADO NA VIDA PERDIDA DO ALVO
-	}),//FAZER
+			20,//ENERGIA PARA USAR
+			0.15//VALOR DA CURA BASEADO NA VIDA PERDIDA DO ALVO
+	}),
 	
 	ELETRIC_CHARGE(11,"Carga Elétrica",0.05,0.07,"Pode atacar enquanto possuir energia.",1,new double[] {
 			7//ENERGIA PARA USAR, 7*(4-LVL DA ARMA) VER AINDA O QUE VAI FAZER
-	}),//FAZER
+	}),
 	
 	DRUNK_FIST(12,"Punho Bêbado",0.02,0.03,"Causa dano baseado no poder de ataque, cada ataque possui 80% de chance de não consumir pontos de ação.",100, new double[] {
 			0.8//CHANCE DE NAO CONSUMIR PONTOS
-	}),//FAZER
+	}),
 	
 	ACCURATE_ATTACK(13,"Ataque Certeiro",0.12,0.15,"Causa dano baseado no poder de ataque, vida perdida e vida maxima.",100, new double[] {
 			0.1,//VIDA PERDIDA
 			0.1//VIDA MAXIMA
-	}),//FAZER
+	}),
 	
-	CONTROL_ATTACK(14,"Ataque Controlado",0.12,0.15,"Causa dano baseado no poder de ataque, possui 50% de chance de dar um ataque extra na rodada.",100, new double[] {
-			0.5//CHANCE DE DAR ATAQUE EXTRA NA RODADA
-	}),//FAZER
+	CONTROL_ATTACK(14,"Ataque Controlado",0.12,0.15,"Causa dano baseado no poder de ataque, possui 50% de chance de dar um ataque extra na rodada.",99, new double[] {
+			0.5,//CHANCE DE DAR ATAQUE EXTRA NA RODADA
+			98//ENERGIA A REGENERAR CASO A CHANCE ACIMA FOR SUCESSO
+	}),
 	
 	CURSED_BLADE(15,"Lâmina Amaldiçoada",0.15,0.20,"Causa dano baseado no poder de ataque, caso execute o alvo pode atacar novamente.",100),//FAZER
 	
@@ -63,11 +68,12 @@ public enum Skill implements DamageSource, HealSource{
 			0.66,//PERCENTUAL DO PERCENTUAL DE VIDA PERDIDA
 			0.2,//VALOR MINIMO DO PERCENTUAL DA VIDA ATUAL DO ALVO
 			0,5//PERCENTUAL DO PERCENTUAL DA VIDA ATUAL DO ALVO COM O VALOR MINIMO SUBTRAIDO
-	}),//FAZER
+	}),
 	
-	DISEASE_WAVE(17,"Onda de Doenças",0.18,0.20,"Causa dano baseado no poder de ataque, consome 100% de mana para causar uma doença a todos os inimigos por 3 rodadas.",100,new double[] {
-			0.25//PERCENTUAL DA MANA MAXIMA QUE VAI SER CAUSADA COM DANO DURANTE 3 RODADAS
-	}),//FAZER
+	DISEASE_WAVE(17,"Onda de Doenças",0.18,0.20,"Causa dano baseado no poder de ataque, consome 100% de energia para causar uma doença a todos os inimigos por 3 rodadas.",100,new double[] {
+			3,//NUMERO DE RODADAS
+			0.25//PERCENTUAL DA ENERGIA MAXIMA QUE VAI SER CAUSADA COMO DANO DURANTE 3 RODADAS
+	}),
 	
 	//(,"",,,"",100),
 	;
@@ -100,7 +106,6 @@ public enum Skill implements DamageSource, HealSource{
 	private double minDamage;
 	private double maxDamage;
 	private double baseDamage;
-	private int energyCost;
 	private int actionCost;
 	private int id;
 	private double[] values;
@@ -125,10 +130,6 @@ public enum Skill implements DamageSource, HealSource{
 		return description;
 	}
 	
-	public int getEnergyCost() {
-		return energyCost;
-	}
-	
 	public int getActionCost() {
 		return actionCost;
 	}
@@ -137,10 +138,8 @@ public enum Skill implements DamageSource, HealSource{
 		switch(this) {
 		case FIREBALL:
 			return owner.getName()+" usou bola de fogo gigante.";
-		case ILUMINATED_FIELD:
-			return owner.getName()+" usou "+getName()+".";
 		}
-		return name()+" SEM VALOR USAGEMESSAGE";
+		return owner.getName()+" usou "+getName()+".";
 	}
 
 	@Override
@@ -268,7 +267,17 @@ public enum Skill implements DamageSource, HealSource{
 	public String getHealMessage(Entity owner, Entity target, int value) {
 		switch(this) {
 		case ILUMINATED_FIELD:
-			return owner.getLogName()+" iluminou "+target.getLogName()+" o curando em "+value+" de vida.";
+			if(owner.equals(target)) {
+				return owner.getLogName()+" se iluminou se curando em "+value+" de vida.";
+			}else {
+				return owner.getLogName()+" iluminou "+target.getLogName()+" o curando em "+value+" de vida.";
+			}
+		case SPIRITUAL_SEED:
+			if(owner.equals(target)) {
+				return owner.getLogName()+" se regenerou em "+value+" de vida.";
+			}else {
+				return owner.getLogName()+" regenerou "+target.getLogName()+" o curando em "+value+" de vida.";
+			}
 		}
 		return name()+" NAO DEFINIDO HEALMESSAGE";
 	}
@@ -278,6 +287,8 @@ public enum Skill implements DamageSource, HealSource{
 		switch(this) {
 		case ILUMINATED_FIELD:
 			return target.getMaxHealth()*values[1];
+		case SPIRITUAL_SEED:
+			return target.getLostHealth()*values[1];
 		}
 		return 0;
 	}
@@ -318,7 +329,7 @@ public enum Skill implements DamageSource, HealSource{
 	}
 
 	@Override
-	public boolean isSingleTargetHeal() {
+	public boolean isExpansiveHeal() {
 		switch(this) {
 		case ILUMINATED_FIELD:
 			return false;

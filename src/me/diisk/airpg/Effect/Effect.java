@@ -1,7 +1,11 @@
 package me.diisk.airpg.Effect;
 
-import me.diisk.airpg.Entity;
 import static me.diisk.airpg.Utils.*;
+
+import java.util.Random;
+
+import me.diisk.airpg.Battle;
+import me.diisk.airpg.Entity.Entity;
 
 public class Effect {
 
@@ -22,6 +26,9 @@ public class Effect {
 	private void config(Entity owner, int rounds, EffectType type, double...values) {
 		this.owner=  owner;
 		this.rounds = rounds;
+		if(rounds==-2) {
+			this.rounds = owner.getBattle().getRoundsToRestart();
+		}
 		this.type = type;
 		this.values = new double[values.length];
 		for(int i=0;i<values.length;i++) {
@@ -36,7 +43,7 @@ public class Effect {
 	public void onApply(Entity target) {
 		switch(type) {
 		case BOUNCING_REBOUND:
-			target.removeEffect(id);
+			target.removeEffect(id,true);
 			target.heal(owner, (int) values[1], type);
 			for(Entity e:owner.getTeam().getAliveMembers()) {
 				if(!e.equals(target)) {
@@ -49,6 +56,8 @@ public class Effect {
 			break;
 		case BLEEDING:
 		case STUNNED:
+		case FAITH_SHIELD:
+		case MARK_OF_DEATH:
 			target.getBattle().addLogLine(type.getUsageMessage(owner, target));
 			break;
 		}
@@ -58,11 +67,9 @@ public class Effect {
 		
 	}
 	
-	public boolean update(Entity turnOn, Entity target) {
+	public boolean update(Entity target) {
 		if(rounds>0) {
 			rounds--;
-		}else if(rounds==-2) {
-			return !owner.equals(turnOn);
 		}
 		switch(type) {
 		case CELL_REGENERATION:
@@ -70,6 +77,9 @@ public class Effect {
 			break;
 		case BLEEDING:
 			target.damage(owner, type, values[2]*target.getMaxHealth());
+			break;
+		case MARK_OF_DEATH:
+			target.damage(owner, type, values[0]);
 			break;
 		}
 		return rounds!=0;
@@ -93,6 +103,9 @@ public class Effect {
 	
 	public void setRounds(int rounds) {
 		this.rounds = rounds;
+		if(rounds==-2) {
+			this.rounds=owner.getBattle().getRoundsToRestart();
+		}
 	}
 	
 	public void setValues(double[] values) {

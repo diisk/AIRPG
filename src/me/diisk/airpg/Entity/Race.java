@@ -1,7 +1,9 @@
-package me.diisk.airpg;
+package me.diisk.airpg.Entity;
 
 import me.diisk.airpg.Effect.EffectType;
 import static me.diisk.airpg.Attributes.*;
+
+import me.diisk.airpg.Attributes;
 
 public enum Race {
 

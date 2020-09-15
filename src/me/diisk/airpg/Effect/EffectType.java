@@ -1,9 +1,9 @@
 package me.diisk.airpg.Effect;
 
-import me.diisk.airpg.Damage;
-import me.diisk.airpg.DamageSource;
-import me.diisk.airpg.Entity;
 import me.diisk.airpg.HealSource;
+import me.diisk.airpg.Damage.Damage;
+import me.diisk.airpg.Damage.DamageSource;
+import me.diisk.airpg.Entity.Entity;
 
 public enum EffectType implements DamageSource, HealSource{
 
@@ -31,7 +31,7 @@ public enum EffectType implements DamageSource, HealSource{
 					0.25,
 					0.5
 			}),
-	HEALER(5,"Curandeiro","Todas as habilidades de cura sao 100% mais efetivas.",//TESTAR
+	HEALER(5,"Curandeiro","Todas as habilidades de cura sao 100% mais efetivas.",
 			new double[] {
 					1
 			}),
@@ -64,7 +64,7 @@ public enum EffectType implements DamageSource, HealSource{
 			new double[] {
 					0.5
 			}),
-	BOUNCY_HEAL(13,"Cura Saltitante","Suas curas possuem 80% de chance de saltar para um alvo adicional diferente, a chance e a cura reduz pela metade em cada salto.",//TESTAR
+	BOUNCY_HEAL(13,"Cura Saltitante","Suas curas de alvo unico possuem 80% de chance de saltar para um alvo adicional diferente, a chance e a cura reduz pela metade em cada salto.",//TALVEZ EDITAR
 			new double[] {
 					0.8
 			}),
@@ -101,7 +101,7 @@ public enum EffectType implements DamageSource, HealSource{
 			new double[] {
 					0.4
 			}),
-	NATURAL_POLINATION(21,"Polinizacao Natural","Suas curas recebem um adicional de 33% por rodada aplicado durante as proximas 3 rodadas.",//TESTAR
+	NATURAL_POLINATION(21,"Polinizacao Natural","Suas curas recebem um adicional de 33% por rodada aplicado durante as proximas 3 rodadas.",
 			new double[] {
 					0.33,
 					3
@@ -153,6 +153,16 @@ public enum EffectType implements DamageSource, HealSource{
 	
 	STUNNED(36,"Desnorteado","Não pode fazer nada durante a rodada."),
 	
+	MARK_OF_DEATH(37,"Marca da Morte","Causa dano por rodada.",EffectType.TIME_RESET_AND_VALUE_RESET,true,true),
+	
+	SHIELD(38,"Escudo","Possui chance de defender os ataques.",
+			0.07//CHANCE POR NIVEL DO ITEM
+			),
+	
+	GRIMOIRE(39,"Grimorio","Aumenta a regeneração de energia.",
+			0.25//QUANTIDADE POR NIVEL DO ITEM
+			),
+	
 	//(,"",""),
 	;
 	
@@ -178,7 +188,7 @@ public enum EffectType implements DamageSource, HealSource{
 	private int rounds = 0;
 	private double[] values = new double[0];
 	
-	private EffectType(int id, String name, String description, double[] values) {
+	private EffectType(int id, String name, String description, double... values) {
 		config(id, name, description, true, -1, values, DO_NOTHING, true, false);
 	}
 	
@@ -260,6 +270,8 @@ public enum EffectType implements DamageSource, HealSource{
 			return killer.getName()+" executou "+target.getName()+" com um paranaue ninja.";
 		case BLEEDING:
 			return killer.getName()+" fez "+target.getName()+" sangrar até a morte.";
+		case MARK_OF_DEATH:
+			return target.getName()+" morreu de AIDS transmitida por "+killer.getName()+".";
 		}
 		return name()+" SEM VALOR DEFINIDO EM DEATHMESSAGE";
 	}
@@ -274,6 +286,8 @@ public enum EffectType implements DamageSource, HealSource{
 			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com um choquinho.";
 		case BLEEDING:
 			return target.getLogName()+" perdeu "+value+" de vida, por um sangramento causado por "+owner.getLogName()+".";
+		case MARK_OF_DEATH:
+			return target.getLogName()+" está com câncer causado por "+owner.getLogName()+" e perdeu "+value+" de vida.";
 		}
 		return name()+" SEM VALOR DEFINIDO EM DAMAGEMESSAGE";
 	}
@@ -299,6 +313,8 @@ public enum EffectType implements DamageSource, HealSource{
 			return "O morto vivo "+owner.getName()+" ressucitou CAUSE THIS IS THRILLER OH OH...";
 		case STUNNED:
 			return owner.getName()+" deixou "+target.getName()+" desnorteado.";
+		case FAITH_SHIELD:
+			return target.getName()+" recebeu "+getName()+" de "+owner.getName()+".";
 		}
 		return owner.getName()+" aplicou "+getName()+" em "+target.getName()+".";
 	}
@@ -348,6 +364,7 @@ public enum EffectType implements DamageSource, HealSource{
 	public boolean canBeEvaded() {
 		switch(this) {
 		case BLEEDING:
+		case MARK_OF_DEATH:
 			return false;
 		}
 		return true;
@@ -363,9 +380,10 @@ public enum EffectType implements DamageSource, HealSource{
 	}
 
 	@Override
-	public boolean isSingleTargetHeal() {
+	public boolean isExpansiveHeal() {
 		switch(this) {
-		case BOUNCING_REBOUND:
+		case BOUNCING_REBOUND:	
+		case CELL_REGENERATION:
 			return false;
 		}
 		return true;

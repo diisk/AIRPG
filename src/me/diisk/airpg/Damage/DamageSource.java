@@ -1,4 +1,6 @@
-package me.diisk.airpg;
+package me.diisk.airpg.Damage;
+
+import me.diisk.airpg.Entity.Entity;
 
 public interface DamageSource {
 	

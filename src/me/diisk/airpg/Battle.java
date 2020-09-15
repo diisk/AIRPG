@@ -6,6 +6,7 @@ import java.util.Random;
 
 import me.diisk.airpg.CustomList.CustomList;
 import me.diisk.airpg.Effect.EffectType;
+import me.diisk.airpg.Entity.Entity;
 
 public class Battle {
 
@@ -80,6 +81,21 @@ public class Battle {
 		return ll;
 	}
 	
+	public int getRoundsToRestart() {
+		int r = 0;
+		for(Entity e:team1.getAllMembers()) {
+			if(!e.isDead()) {
+				r++;
+			}
+		}
+		for(Entity e:team2.getAllMembers()) {
+			if(!e.isDead()) {
+				r++;
+			}
+		}
+		return r;
+	}
+	
 	public Team getWinners() {
 		if((team1.isAllDead() && team2.isAllDead()) || (!team1.isAllDead() && !team2.isAllDead())) {
 			return null;
@@ -120,7 +136,7 @@ public class Battle {
 					battle.addLogLine("Iniciando Round "+battle.round+"("+en.getName()+"):");
 					for(Entity enn:ents) {
 						if(!enn.isDead()) {
-							enn.roundUpdate(en);
+							enn.roundUpdate();
 						}
 					}
 					if(!en.containsEffect(EffectType.STUNNED)) {
