@@ -21,6 +21,10 @@ public class Item {
 		return type.getSkill();
 	}
 	
+	public Slot getSlot() {
+		return type.getSlot();
+	}
+	
 	public Group getGroup() {
 		return type.getGroup();
 	}
@@ -31,5 +35,25 @@ public class Item {
 	
 	public Grade getGrade() {
 		return type.getGrade();
+	}
+	
+	public void setAmount(int amount) {
+		this.amount = amount;
+	}
+	
+	public Type getType() {
+		return type;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if(obj instanceof Item) {
+			if(((Item) obj).type==type) {
+				if(((Item) obj).amount==amount) {
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 }

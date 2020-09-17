@@ -29,47 +29,49 @@ import static me.diisk.airpg.Utils.*;
 public class Entity implements Ordenable{
 
 	public static final int MAX_LEVEL = 30;
-	
+
 	public static final int EQUIPMENTS_LENGTH = 12;
-	
+	public static final int INVENTORY_LENGTH = 30;
+
 	public static final int ORDER_BY_INITIATIVE = 0;
 	public static final int ORDER_BY_HEALTH = 1;
-	
+
 	private String name;
 	private long id;
-	
+
 	private int level = 1;
 	private Attributes attributes;
 	private Team team;
 	private Battle battle;
 	private HashMap<Entity, Double> aggroList = new HashMap<Entity, Double>();
-	
+
 	private double health;
 	private double energy = 0;
 	private int actionPoints;
-	
+
 	private Race race;
 	private Classe classe;
-	
+
 	private Item[] equipments = new Item[EQUIPMENTS_LENGTH];
+	private Item[] inventory = new Item[INVENTORY_LENGTH];
 	private List<Effect> effects = new ArrayList<Effect>();
-	
+
 	public Entity(String name, Race race, Classe classe) {
 		this.name=name;
 		this.race=race;
 		this.classe=classe;
 	}
-	
+
 	public List<Effect> getEffects() {
 		List<Effect> r = new ArrayList<Effect>();
 		r.addAll(effects);
 		return r;
 	}
-	
+
 	public Battle getBattle() {
 		return battle;
 	}
-	
+
 	public void respawn(Battle battle) {
 		this.battle=battle;
 		effects.clear();
@@ -90,7 +92,7 @@ public class Entity implements Ordenable{
 						applyEffect(new Effect(this, -1,EffectType.GRIMOIRE,EffectType.GRIMOIRE.getValues()[0]*(1+item.getGrade().getID())));
 					}
 				}
-				
+
 			}
 			if(i==ENERGY_REGENERATION||i==HEALTH_REGENERATION) {
 				attributes.multiply(i, 1+mod);
@@ -102,9 +104,91 @@ public class Entity implements Ordenable{
 		attributes.add(INITIATIVE, rand.nextInt(20));
 		health = getMaxHealth();
 	}
-	
-	//TESTE
-	
+
+	public boolean desequip(Slot slot) {
+		if(getEquipmentBy(slot)!=null) {
+			if(getFreeInventorySize()>=2) {
+				Item item = getEquipmentBy(slot);
+				inventory[getFreeInventorySlot()]=item;
+				equipments[slot.getID()]=null;
+			}else {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	private void removeItem(Item item) {
+		for(int i=0;i<INVENTORY_LENGTH;i++) {
+			Item it = inventory[i];
+			if(it.getType()==item.getType()) {
+				if(it.getAmount()>item.getAmount()) {
+					it.setAmount(it.getAmount()-item.getAmount());
+				}else {
+					inventory[i]=null;
+				}
+				break;
+			}
+		}
+	}
+
+	public boolean equip(Item item) {
+		if(getEquipmentBy(item.getSlot())==null) {
+			equipments[item.getSlot().getID()]=item;
+			removeItem(item);
+		}else {
+			switch(item.getSlot()) {
+			case INVENTORY:
+				return false;
+			case EARRING:
+				if(getEquipmentBy(Slot.EARRING2)==null) {
+					equipments[Slot.EARRING2.getID()]=item;
+					removeItem(item);
+					break;
+				}
+			case RING:
+				if(getEquipmentBy(Slot.RING2)==null) {
+					equipments[Slot.RING2.getID()]=item;
+					removeItem(item);
+					break;
+				}
+			default:
+				if(desequip(item.getSlot())) {
+					equip(item);
+				}else {
+					return false;
+				}
+				break;
+			}
+		}
+		return true;
+	}
+
+	public int getFreeInventorySize() {
+		int r = 0;
+		for(int i=0;i<INVENTORY_LENGTH;i++) {
+			Item item = inventory[i];
+			if(item==null) {
+				r++;
+			}
+		}
+		return r;
+	}
+
+	public int getFreeInventorySlot() {
+		for(int i=0;i<INVENTORY_LENGTH;i++) {
+			Item item = inventory[i];
+			if(item==null) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public Item getEquipmentBy(Slot slot) {
+		return equipments[slot.getID()];
+	}
+
 	public void addAggroFor(Entity target, double value) {
 		double a = getAggroFor(target);
 		if(a>0) {
@@ -113,14 +197,14 @@ public class Entity implements Ordenable{
 			aggroList.put(target, value);
 		}
 	}
-	
+
 	public double getAggroFor(Entity target) {
 		if(aggroList.containsKey(target)) {
 			return aggroList.get(target);
 		}
 		return 0;
 	}
-	
+
 	public double getValuesOf(int pos, EffectType type) {
 		double r = 0;
 		for(Effect e:getEffectsBy(type)) {
@@ -128,72 +212,72 @@ public class Entity implements Ordenable{
 		}
 		return r;
 	}
-	
+
 	private double getEnergyRegen() {
 		double r = attributes.get(ENERGY_REGENERATION);
 		r*=1+getValuesOf(0, EffectType.GRIMOIRE);
 		return r;
 	}
-	
+
 	public double getAttackPower() {
 		return attributes.get(ATTACK_POWER);
 	}
-	
+
 	public double getLifeSteal() {
 		double r = attributes.get(LIFE_STEAL)/100.0;
 		r+=getValuesOf(0, EffectType.BLOOD_STEALER);
 		r*=1+getValuesOf(0, EffectType.BLOODSUCKER);
 		return r;
 	}
-	
+
 	public double getCriticalChance() {
 		double r = attributes.get(CRITICAL_CHANCE);
 		r*=1+getValuesOf(0, EffectType.TRAINED_KILLER);
 		return r;
 	}
-	
+
 	public int getDefense() {
 		double r = (attributes.get(DEFENSE)*1);
 		r*=1+getValuesOf(0, EffectType.KNIGHT_SPIRIT);
 		return (int)r;
 	}
-	
+
 	public int getEvasion() {
 		double r = attributes.get(EVASION);
 		r*=1+getValuesOf(0, EffectType.DIVINE_DANCER);
 		return (int)r;
 	}
-	
+
 	public int getAccuracy() {
 		double r = attributes.get(ACCURACY);
 		r*=1+getValuesOf(0, EffectType.ACCURATE_SHOT);
 		return (int)r;
 	}
-	
+
 	private double getHealthRegen() {
 		double r = attributes.get(HEALTH_REGENERATION);
 		r*=1+getValuesOf(0, EffectType.LIZARD_BLOOD);
 		return r;
 	}
-	
+
 	public int getMaxHealth() {
 		double r = attributes.get(MAX_HEALTH);
 		r*=1+getValuesOf(0, EffectType.ELDER);
 		return (int) r;
 	}
-	
+
 	public int getMaxEnergy() {
 		return (int) (attributes.get(MAX_ENERGY)*1);
 	}
-	
+
 	public boolean isDead() {
 		return health<=0;
 	}
-	
+
 	public void turnOn() {
 		actionPoints=100;
 	}
-	
+
 	public void roundUpdate() {
 		health+=getHealthRegen();
 		energy+=getEnergyRegen();
@@ -209,7 +293,7 @@ public class Entity implements Ordenable{
 			}
 		}
 	}
-	
+
 	public void applyEffect(Effect effect) {
 		EffectType type = effect.getType();
 		List<Effect> efs = getEffectsBy(type);
@@ -289,7 +373,7 @@ public class Entity implements Ordenable{
 			}
 		}
 	}
-	
+
 	public List<Effect> getEffectsBy(Entity owner, EffectType type){
 		List<Effect> r = new ArrayList<Effect>();
 		for(Effect e:effects) {
@@ -299,7 +383,7 @@ public class Entity implements Ordenable{
 		}
 		return r;
 	}
-	
+
 	public List<Effect> getEffectsBy(Entity owner){
 		List<Effect> r = new ArrayList<Effect>();
 		for(Effect e:effects) {
@@ -309,7 +393,7 @@ public class Entity implements Ordenable{
 		}
 		return r;
 	}
-	
+
 	public List<Effect> getEffectsBy(EffectType type){
 		List<Effect> r = new ArrayList<Effect>();
 		for(Effect e:effects) {
@@ -319,7 +403,7 @@ public class Entity implements Ordenable{
 		}
 		return r;
 	}
-	
+
 	public void removeEffect(int id, boolean forced) {
 		for(int i=0;i<effects.size();i++) {
 			Effect e = effects.get(i);
@@ -330,7 +414,7 @@ public class Entity implements Ordenable{
 			}
 		}
 	}
-	
+
 	public boolean containsEffect(EffectType type) {
 		for(Effect e:effects) {
 			if(e.getType()==type) {
@@ -339,7 +423,7 @@ public class Entity implements Ordenable{
 		}
 		return false;
 	}
-	
+
 	public Effect getEffectBy(int id) {
 		for(Effect e:effects) {
 			if(e.getID()==id) {
@@ -348,7 +432,7 @@ public class Entity implements Ordenable{
 		}
 		return null;
 	}
-	
+
 	public boolean useSkill() {
 		Skill skill = Skill.DISARMED_PUNCH;
 		Item weapon = equipments[Slot.WEAPON.getID()];
@@ -472,23 +556,23 @@ public class Entity implements Ordenable{
 		}
 		return false;
 	}
-	
+
 	public String getName() {
 		return name;
 	}
-	
+
 	public double getHealthPercent(){
 		return health/getMaxHealth();
 	}
-	
+
 	public void heal(Entity owner, HealSource healSource) {
 		heal(owner, (int) healSource.getStartHeal(owner,this), healSource);
 	}
-	
+
 	public void heal(Entity owner, int value, HealSource healSource) {
 		double maxHeal = getMaxHealth()-health;
 		double finalHeal = value;
-		
+
 		finalHeal*=1+owner.getValuesOf(0, EffectType.HEALER)+getValuesOf(0, EffectType.DARK_POWER)-getValuesOf(1, EffectType.CURSE_OF_HEAL);
 		battle.addLogLine(healSource.getHealMessage(owner,this,(int) finalHeal));
 		for(Entity e:battle.getEnemyTeam(team).getAliveMembers()) {
@@ -522,15 +606,15 @@ public class Entity implements Ordenable{
 			}
 		}
 	}
-	
+
 	public String getLogName() {
 		return "("+(int)health+"/"+getMaxHealth()+")"+name;
 	}
-	
+
 	public double getLostHealth() {
 		return getMaxHealth()-health;
 	}
-	
+
 	public static void main(String[] args) {
 		Entity e1 = new Entity("Golinight", Race.ABYSSAL, Classe.DRUID);
 		e1.equipments[Slot.WEAPON.getID()] = new Item(1, Type.DEMONIAC_ORB_1);
@@ -560,11 +644,11 @@ public class Entity implements Ordenable{
 			System.out.println("EMPATOU");
 		}
 	}
-	
+
 	public void damage(Entity owner, DamageSource damageSource) {
 		damage(owner, damageSource, damageSource.getStartDamage(owner, this));
 	}
-	
+
 	public void damage(Entity owner, DamageSource damageSource, double damageValue) {
 		Damage damage = new Damage(owner, this, damageSource, damageValue);
 		if(damageSource.canBeEvaded()&&containsEffect(EffectType.SHIELD)&&!damageSource.ignoreDefense()) {
@@ -626,7 +710,7 @@ public class Entity implements Ordenable{
 						owner.applyEffect(new Effect(owner,-2,EffectType.ENERGY_SHIELD,new double[]{stealed}));
 					}
 				}
-				
+
 				if(owner.containsEffect(EffectType.LUCKY_HANDS)) {
 					if(chance(0.33)) {
 						battle.addLogLine(owner.getName()+" causou "+EffectType.CURSE_OF_HEAL.getName()+" em "+getName()+".");
@@ -708,7 +792,7 @@ public class Entity implements Ordenable{
 			}
 		}
 	}
-	
+
 	private void die(Entity killer, DamageSource damageSource) {
 		if(killer.equals(this)) {
 			battle.addLogLine(damageSource.getSuicideMessage(this));
@@ -720,7 +804,7 @@ public class Entity implements Ordenable{
 			Effect e = es.get(0);
 			if(chance(e.getValues()[0])) {
 				e.setValue(0, e.getValues()[0]*0.5);
-				
+
 				health = getMaxHealth()*e.getValues()[1];
 				battle.addLogLine(e.getType().getUsageMessage(this,this));
 				return;
@@ -728,11 +812,11 @@ public class Entity implements Ordenable{
 		}
 		health=0;
 	}
-	
+
 	public void setTeam(Team team) {
 		this.team = team;
 	}
-	
+
 	public Team getTeam() {
 		return team;
 	}
@@ -744,8 +828,8 @@ public class Entity implements Ordenable{
 			return attributes.get(INITIATIVE);
 		case ORDER_BY_HEALTH:
 			return health;
-			default:
-				throw new NullPointerException("Nao existem valores nesse ID.");
+		default:
+			throw new NullPointerException("Nao existem valores nesse ID.");
 		}
 	}
 
@@ -753,7 +837,7 @@ public class Entity implements Ordenable{
 	public String getStringValue(int id) {
 		throw new NullPointerException("Nao existem valores nesse ID.");
 	}
-	
+
 	@Override
 	public boolean equals(Object obj) {
 		if(obj instanceof Entity) {
@@ -761,5 +845,5 @@ public class Entity implements Ordenable{
 		}
 		return false;
 	}
-	
+
 }

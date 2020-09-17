@@ -29,6 +29,15 @@ public enum Slot {
 		return name;
 	}
 	
+	public static Slot getSlotBy(int id) {
+		for(Slot s:values()) {
+			if(s.id==id) {
+				return s;
+			}
+		}
+		return null;
+	}
+	
 	public int getID() {
 		return id;
 	}
