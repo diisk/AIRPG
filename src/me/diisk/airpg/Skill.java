@@ -170,44 +170,41 @@ public enum Skill implements DamageSource, HealSource{
 	public String getDeathMessage(Entity killer, Entity target) {
 		switch(this) {
 		case ACCURATE_ATTACK:
-			break;
+			return killer.getName()+" espancou "+target.getName()+" a pauladas.";
 		case BLOODTHIRSTY_ATTACK:
 			return killer.getName()+" fez picadinho de "+target.getName()+".";
 		case BLOODY_EATER:
-			break;
+			return killer.getName()+" partiu "+target.getName()+" em pedaços.";
 		case CONTROL_ATTACK:
-			break;
+			return killer.getName()+" deixou "+target.getName()+" todo furado.";
 		case CURSED_BLADE:
-			break;
+			return killer.getName()+" executou "+target.getName()+" a sangue frio.";
 		case DISARMED_PUNCH:
 			return killer.getName()+" desintegrou "+target.getName()+" com um tapão.";
 		case DISEASE_WAVE:
-			break;
+			return killer.getName()+" decompôs "+target.getName()+" com as bolas do demonio.";
 		case DRUNK_FIST:
-			break;
+			return killer.getName()+" espancou "+target.getName()+" com seus punhos bebados.";
 		case ELETRIC_CHARGE:
-			break;
+			return killer.getName()+" levou "+target.getName()+" pra disney.";
 		case FAST_ARROW:
-			break;
+			return killer.getName()+" perfurou "+target.getName()+" com suas flechas.";
 		case FIREBALL:
 			return killer.getName()+" explodiu "+target.getName()+" com seu bolão de fogo.";
 		case FURIOUS_BLADES:
-			break;
+			return killer.getName()+" comeu pão com "+target.getName()+".";
 		case HALF_MOON_CUT:
-			break;
+			return killer.getName()+" dividiu "+target.getName()+" com um corte meia-lua.";
 		case ILUMINATED_FIELD:
-			break;
+			return killer.getName()+" exorcisou "+target.getName()+".";
 		case PRECISE_SHOT:
-			break;
+			return killer.getName()+" acertou uma flecha no coração de "+target.getName()+".";
 		case SKULL_SMASH:
 			return killer.getName()+" esmagou "+target.getName()+" com seu martelão.";
 		case SPIRITUAL_SEED:
-			break;
+			return killer.getName()+" transformou "+target.getName()+" em adubo.";
 		case STAB:
-			break;
-		default:
-			break;
-		
+			return killer.getName()+" furou "+target.getName()+" com sua estocada.";
 		}
 		return killer.getName()+" fumou "+target.getName()+" na porrada.";
 	}
@@ -245,41 +242,39 @@ public enum Skill implements DamageSource, HealSource{
 			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com seu martelão.";
 		case STAB:
 			return owner.getLogName()+" causou "+value+" de dano a "+target.getLogName()+" com a sua estocada.";
+		case FIREBALL:
+			return owner.getLogName()+" brincou de queimada com "+target.getLogName()+" e causou "+value+" de dano.";
+		case ILUMINATED_FIELD:
+			return owner.getLogName()+" orou por "+target.getLogName()+" causando "+value+" de dano.";
+		case SPIRITUAL_SEED:
+			return owner.getLogName()+" plantou uma semente em "+target.getLogName()+" causando "+value+" de dano.";
 		}
 		if(damage.isCritical()) {
 			switch(this) {
 			case ACCURATE_ATTACK:
-				return owner.getLogName()+" deu uma paulada em "+target.getLogName()+" e causou "+value+" de dano.";
+				return owner.getLogName()+" deu uma paulada em "+target.getLogName()+" causando "+value+" de dano crítico.";
 			case BLOODTHIRSTY_ATTACK:
-				return owner.getLogName()+" cortou "+target.getLogName()+" e causou "+value+" de dano.";
+				return owner.getLogName()+" cortou "+target.getLogName()+" com seu machado causando "+value+" de dano crítico.";
 			case BLOODY_EATER:
-				break;
+				return owner.getLogName()+" usou sua dança sangrenta em "+target.getLogName()+" causando "+value+" de dano crítico.";
 			case CONTROL_ATTACK:
-				break;
+				return owner.getLogName()+" usou sua bolinha de demolição em "+target.getLogName()+" causando "+value+" de dano crítico.";
 			case CURSED_BLADE:
-				break;
+				return owner.getLogName()+" esfaqueou "+target.getLogName()+" causando "+value+" de dano crítico.";
 			case DISARMED_PUNCH:
-				return owner.getLogName()+" deu um soquinho em "+target.getLogName()+" e causou "+value+" de dano.";
+				return owner.getLogName()+" deu um soquinho em "+target.getLogName()+" causando "+value+" de dano crítico.";
 			case DRUNK_FIST:
-				break;
+				return owner.getLogName()+" usou soco bebado em "+target.getLogName()+" causando "+value+" de dano crítico.";
 			case FAST_ARROW:
-				break;
-			case FIREBALL:
-				return owner.getLogName()+" brincou de queimada com "+target.getLogName()+" e causou "+value+" de dano.";
+				return owner.getLogName()+" acertou a flecha na orelha de "+target.getLogName()+" causando "+value+" de dano crítico.";
 			case FURIOUS_BLADES:
-				break;
-			case ILUMINATED_FIELD:
-				break;
+				return owner.getLogName()+" mutilou "+target.getLogName()+" causando "+value+" de dano crítico.";
 			case PRECISE_SHOT:
-				break;
+				return owner.getLogName()+" acertou o pé de "+target.getLogName()+" causando "+value+" de dano crítico.";
 			case SKULL_SMASH:
-				return owner.getLogName()+" martelou "+target.getLogName()+" e causou "+value+" de dano.";
-			case SPIRITUAL_SEED:
-				break;
+				return owner.getLogName()+" martelou "+target.getLogName()+" causando "+value+" de dano crítico.";
 			case STAB:
-				break;
-			default:
-				break;
+				return owner.getLogName()+" perfurou "+target.getLogName()+" causando "+value+" de dano crítico.";
 			}
 		}
 		return r;
