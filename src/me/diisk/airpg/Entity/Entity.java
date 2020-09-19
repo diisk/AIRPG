@@ -36,27 +36,26 @@ public class Entity implements Ordenable{
 	public static final int ORDER_BY_INITIATIVE = 0;
 	public static final int ORDER_BY_HEALTH = 1;
 
-	private String name;
-	private long id;
+	protected String name;
+	protected long id = -1;
 
-	private int level = 1;
-	private Attributes attributes;
-	private Team team;
-	private Battle battle;
-	private HashMap<Entity, Double> aggroList = new HashMap<Entity, Double>();
+	protected int level = 1;
+	protected Attributes attributes;
+	protected Team team;
+	protected Battle battle;
+	protected HashMap<Entity, Double> aggroList = new HashMap<Entity, Double>();
 
-	private double health;
-	private double energy = 0;
-	private int actionPoints;
+	protected double health;
+	protected double energy = 0;
+	protected int actionPoints;
 
-	private Race race;
-	private Classe classe;
+	protected Race race;
+	protected Classe classe;
 
-	private Item[] equipments = new Item[EQUIPMENTS_LENGTH];
-	private Item[] inventory = new Item[INVENTORY_LENGTH];
-	private List<Effect> effects = new ArrayList<Effect>();
+	protected Item[] equipments = new Item[EQUIPMENTS_LENGTH];
+	protected List<Effect> effects = new ArrayList<Effect>();
 
-	public Entity(String name, Race race, Classe classe) {
+	protected Entity(String name, Race race, Classe classe) {
 		this.name=name;
 		this.race=race;
 		this.classe=classe;
@@ -105,86 +104,6 @@ public class Entity implements Ordenable{
 		health = getMaxHealth();
 	}
 
-	public boolean desequip(Slot slot) {
-		if(getEquipmentBy(slot)!=null) {
-			if(getFreeInventorySize()>=2) {
-				Item item = getEquipmentBy(slot);
-				inventory[getFreeInventorySlot()]=item;
-				equipments[slot.getID()]=null;
-			}else {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	private void removeItem(Item item) {
-		for(int i=0;i<INVENTORY_LENGTH;i++) {
-			Item it = inventory[i];
-			if(it.getType()==item.getType()) {
-				if(it.getAmount()>item.getAmount()) {
-					it.setAmount(it.getAmount()-item.getAmount());
-				}else {
-					inventory[i]=null;
-				}
-				break;
-			}
-		}
-	}
-
-	public boolean equip(Item item) {
-		if(getEquipmentBy(item.getSlot())==null) {
-			equipments[item.getSlot().getID()]=item;
-			removeItem(item);
-		}else {
-			switch(item.getSlot()) {
-			case INVENTORY:
-				return false;
-			case EARRING:
-				if(getEquipmentBy(Slot.EARRING2)==null) {
-					equipments[Slot.EARRING2.getID()]=item;
-					removeItem(item);
-					break;
-				}
-			case RING:
-				if(getEquipmentBy(Slot.RING2)==null) {
-					equipments[Slot.RING2.getID()]=item;
-					removeItem(item);
-					break;
-				}
-			default:
-				if(desequip(item.getSlot())) {
-					equip(item);
-				}else {
-					return false;
-				}
-				break;
-			}
-		}
-		return true;
-	}
-
-	public int getFreeInventorySize() {
-		int r = 0;
-		for(int i=0;i<INVENTORY_LENGTH;i++) {
-			Item item = inventory[i];
-			if(item==null) {
-				r++;
-			}
-		}
-		return r;
-	}
-
-	public int getFreeInventorySlot() {
-		for(int i=0;i<INVENTORY_LENGTH;i++) {
-			Item item = inventory[i];
-			if(item==null) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
 	public Item getEquipmentBy(Slot slot) {
 		return equipments[slot.getID()];
 	}
@@ -213,7 +132,7 @@ public class Entity implements Ordenable{
 		return r;
 	}
 
-	private double getEnergyRegen() {
+	protected double getEnergyRegen() {
 		double r = attributes.get(ENERGY_REGENERATION);
 		r*=1+getValuesOf(0, EffectType.GRIMOIRE);
 		return r;
@@ -254,7 +173,7 @@ public class Entity implements Ordenable{
 		return (int)r;
 	}
 
-	private double getHealthRegen() {
+	protected double getHealthRegen() {
 		double r = attributes.get(HEALTH_REGENERATION);
 		r*=1+getValuesOf(0, EffectType.LIZARD_BLOOD);
 		return r;
@@ -793,7 +712,7 @@ public class Entity implements Ordenable{
 		}
 	}
 
-	private void die(Entity killer, DamageSource damageSource) {
+	protected void die(Entity killer, DamageSource damageSource) {
 		if(killer.equals(this)) {
 			battle.addLogLine(damageSource.getSuicideMessage(this));
 		}else {

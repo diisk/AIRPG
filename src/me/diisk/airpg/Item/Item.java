@@ -2,9 +2,16 @@ package me.diisk.airpg.Item;
 
 import me.diisk.airpg.Attributes;
 import me.diisk.airpg.Skill;
+import me.diisk.airpg.CustomList.Filterable;
+import me.diisk.airpg.CustomList.Ordenable;
 
-public class Item {
+public class Item implements Ordenable, Filterable{
 
+	public static final int OBJECT_ID_GROUP = 0;
+	public static final int OBJECT_ID_GRADE = 1;
+	public static final int OBJECT_ID_CATEGORY = 2;
+	public static final int OBJECT_ID_SLOT = 3;
+	
 	private Type type;
 	private int amount;
 	
@@ -55,5 +62,32 @@ public class Item {
 			}
 		}
 		return false;
+	}
+
+	@Override
+	public double getNumberValue(int id) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public String getStringValue(int id) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public Object getObject(int id) {
+		switch(id) {
+		case OBJECT_ID_CATEGORY:
+			return type.getCategory();
+		case OBJECT_ID_GRADE:
+			return type.getGrade();
+		case OBJECT_ID_GROUP:
+			return type.getGroup();
+		case OBJECT_ID_SLOT:
+			return type.getSlot();
+		}
+		return null;
 	}
 }
