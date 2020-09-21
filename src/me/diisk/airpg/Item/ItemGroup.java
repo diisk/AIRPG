@@ -1,6 +1,6 @@
 package me.diisk.airpg.Item;
 
-public enum Group {
+public enum ItemGroup {
 
 	LONG_SWORD(0,"Espada Longa"),
 	DUAL_AXE(1,"Machados Duplos"),
@@ -28,7 +28,7 @@ public enum Group {
 	private int id;
 	private String name;
 	
-	private Group(int id, String name) {
+	private ItemGroup(int id, String name) {
 		this.id=id;
 		this.name=name;
 	}

@@ -1,9 +1,9 @@
 package me.diisk.airpg.Entity;
 
-import me.diisk.airpg.Item.Group;
+import me.diisk.airpg.Item.ItemGroup;
 import me.diisk.airpg.Item.Item;
 import me.diisk.airpg.Item.Slot;
-import me.diisk.airpg.Item.Type;
+import me.diisk.airpg.Item.ItemType;
 
 import static me.diisk.airpg.Attributes.*;
 
@@ -30,9 +30,6 @@ public class Entity implements Ordenable{
 
 	public static final int MAX_LEVEL = 30;
 
-	public static final int EQUIPMENTS_LENGTH = 12;
-	public static final int INVENTORY_LENGTH = 30;
-
 	public static final int ORDER_BY_INITIATIVE = 0;
 	public static final int ORDER_BY_HEALTH = 1;
 
@@ -52,7 +49,7 @@ public class Entity implements Ordenable{
 	protected Race race;
 	protected Classe classe;
 
-	protected Item[] equipments = new Item[EQUIPMENTS_LENGTH];
+	protected Item[] equipments = new Item[Slot.EQUIPMENTS_LENGTH];
 	protected List<Effect> effects = new ArrayList<Effect>();
 
 	protected Entity(String name, Race race, Classe classe) {
@@ -85,9 +82,9 @@ public class Entity implements Ordenable{
 			for(Item item:equipments) {
 				if(item!=null) {
 					mod+=item.getMods().get(i);
-					if(item.getGroup()==Group.SHIELD) {
+					if(item.getGroup()==ItemGroup.SHIELD) {
 						applyEffect(new Effect(this, -1,EffectType.SHIELD,EffectType.SHIELD.getValues()[0]*(1+item.getGrade().getID())));
-					}else if(item.getGroup()==Group.GRIMOIRE) {
+					}else if(item.getGroup()==ItemGroup.GRIMOIRE) {
 						applyEffect(new Effect(this, -1,EffectType.GRIMOIRE,EffectType.GRIMOIRE.getValues()[0]*(1+item.getGrade().getID())));
 					}
 				}
@@ -536,13 +533,13 @@ public class Entity implements Ordenable{
 
 	public static void main(String[] args) {
 		Entity e1 = new Entity("Golinight", Race.ABYSSAL, Classe.DRUID);
-		e1.equipments[Slot.WEAPON.getID()] = new Item(1, Type.DEMONIAC_ORB_1);
-		e1.equipments[Slot.WEAPON_SECONDARY.getID()] = new Item(1, Type.GRIMOIRE_4);
+		e1.equipments[Slot.WEAPON.getID()] = new Item(1, ItemType.DEMONIAC_ORB_1);
+		e1.equipments[Slot.WEAPON_SECONDARY.getID()] = new Item(1, ItemType.GRIMOIRE_4);
 		Team team1 = new Team(e1);
 		//team1.addMember(new Entity("Autonight", Race.AUTOMATO, Classe.KNIGHT));
 		//team1.addMember(new Entity("Golinight2", Race.GOLEM, Classe.KNIGHT));
 		Entity e2 = new Entity("Vampancer", Race.DARKIN, Classe.NECROMANCER);
-		e2.equipments[Slot.WEAPON.getID()] = new Item(1, Type.STAFF_1);
+		e2.equipments[Slot.WEAPON.getID()] = new Item(1, ItemType.STAFF_1);
 		Team team2 = new Team(e2);
 		//team2.addMember(new Entity("Darkancer", Race.DARKIN, Classe.NECROMANCER)); 
 		//team2.addMember(new Entity("Abymancer", Race.ABYSSAL, Classe.NECROMANCER));

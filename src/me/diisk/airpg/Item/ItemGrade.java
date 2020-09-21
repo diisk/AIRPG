@@ -1,6 +1,6 @@
 package me.diisk.airpg.Item;
 
-public enum Grade {
+public enum ItemGrade {
 
 	NORMAL(0,"Normal"),
 	DISTINCT(1,"Distinto"),
@@ -11,7 +11,7 @@ public enum Grade {
 	private String name;
 	private int id;
 	
-	private Grade(int id, String name) {
+	private ItemGrade(int id, String name) {
 		this.name = name;
 		this.id = id;
 	}

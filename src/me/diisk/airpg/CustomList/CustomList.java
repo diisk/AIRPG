@@ -4,8 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-import me.diisk.airpg.CustomList.Filterable.Filter;
-
 public class CustomList <T>{
 	
 	private Object[] list = new Object[0];
@@ -60,7 +58,7 @@ public class CustomList <T>{
 		list = Ordenable.order((CustomList<? extends Ordenable>) this, id, alphabetical, decrescent).list;
 	}
 	
-	public void filterBy(Filter...filters) {
+	public void filterBy(FilterableFilter...filters) {
 		list = Filterable.filter((CustomList<? extends Filterable>) this, filters).list;
 	}
 	
@@ -80,6 +78,19 @@ public class CustomList <T>{
 			}
 			for(int i=0;i<arg0.length;i++) {
 				mod[i+size()] = arg0[i];
+			}
+			list = mod;
+		}
+	}
+	
+	public void addAll(CustomList<T> cl) {
+		if(cl.size()>0) {
+			Object[] mod = new Object[size()+cl.size()];
+			for(int i=0;i<size();i++) {
+				mod[i] = list[i];
+			}
+			for(int i=0;i<cl.size();i++) {
+				mod[i+size()] = cl.get(i);
 			}
 			list = mod;
 		}

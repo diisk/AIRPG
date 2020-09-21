@@ -1,6 +1,6 @@
 package me.diisk.airpg.Item;
 
-public enum Category {
+public enum ItemCategory {
 
 	MAGIC_WEAPON(0,"Arma Mágica"),
 	LIGHT_WEAPON(1,"Arma Leve"),
@@ -20,7 +20,7 @@ public enum Category {
 	private int id;
 	private String name;
 	
-	private Category(int id, String name) {
+	private ItemCategory(int id, String name) {
 		this.id=id;
 		this.name=name;
 	}

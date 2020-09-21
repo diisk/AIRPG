@@ -17,6 +17,10 @@ public enum Slot {
 	INVENTORY(13,"Inventário")
 	;
 	
+	
+	public static final int EQUIPMENTS_LENGTH = 12;
+	public static final int INVENTORY_LENGTH = 30;
+	
 	private int id;
 	private String name;
 	

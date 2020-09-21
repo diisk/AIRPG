@@ -5,17 +5,12 @@ import me.diisk.airpg.Skill;
 import me.diisk.airpg.CustomList.Filterable;
 import me.diisk.airpg.CustomList.Ordenable;
 
-public class Item implements Ordenable, Filterable{
-
-	public static final int OBJECT_ID_GROUP = 0;
-	public static final int OBJECT_ID_GRADE = 1;
-	public static final int OBJECT_ID_CATEGORY = 2;
-	public static final int OBJECT_ID_SLOT = 3;
+public class Item implements Ordenable{
 	
-	private Type type;
+	private ItemType type;
 	private int amount;
 	
-	public Item(int amount, Type type) {
+	public Item(int amount, ItemType type) {
 		this.amount=amount;
 		this.type=type;
 	}
@@ -32,7 +27,7 @@ public class Item implements Ordenable, Filterable{
 		return type.getSlot();
 	}
 	
-	public Group getGroup() {
+	public ItemGroup getGroup() {
 		return type.getGroup();
 	}
 	
@@ -40,7 +35,7 @@ public class Item implements Ordenable, Filterable{
 		return amount;
 	}
 	
-	public Grade getGrade() {
+	public ItemGrade getGrade() {
 		return type.getGrade();
 	}
 	
@@ -48,7 +43,7 @@ public class Item implements Ordenable, Filterable{
 		this.amount = amount;
 	}
 	
-	public Type getType() {
+	public ItemType getType() {
 		return type;
 	}
 	
@@ -75,19 +70,5 @@ public class Item implements Ordenable, Filterable{
 		// TODO Auto-generated method stub
 		return null;
 	}
-
-	@Override
-	public Object getObject(int id) {
-		switch(id) {
-		case OBJECT_ID_CATEGORY:
-			return type.getCategory();
-		case OBJECT_ID_GRADE:
-			return type.getGrade();
-		case OBJECT_ID_GROUP:
-			return type.getGroup();
-		case OBJECT_ID_SLOT:
-			return type.getSlot();
-		}
-		return null;
-	}
+	
 }
