@@ -1,6 +1,9 @@
 package me.diisk.airpg.Entity;
 
 import me.diisk.airpg.Effect.EffectType;
+import me.diisk.airpg.Item.ItemCategory;
+import me.diisk.airpg.Item.ItemType;
+
 import static me.diisk.airpg.Attributes.*;
 
 import me.diisk.airpg.Attributes;

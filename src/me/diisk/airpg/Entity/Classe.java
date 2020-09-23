@@ -81,6 +81,27 @@ public enum Classe {
 		return new ItemGroup[0];
 	}
 	
+	public ItemCategory getCategory() {
+		switch(this) {
+		case ARCHER:
+		case ASSASSIN:
+		case MONK:
+			return ItemCategory.LIGHT_WEAPON;
+		case BARBARIAN:
+		case KNIGHT:
+		case NINJA:
+		case PALADIN:
+			return ItemCategory.HEAVY_WEAPON;
+		case DRUID:
+		case NECROMANCER:
+		case PRIEST:
+		case SORCERER:
+		case WARLOCK:
+			return ItemCategory.MAGIC_WEAPON;
+		}
+		return null;
+	}
+	
 	public ItemCategory getArmorCategory() {
 		switch(this) {
 		case ARCHER:

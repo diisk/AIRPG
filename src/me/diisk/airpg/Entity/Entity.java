@@ -2,11 +2,19 @@ package me.diisk.airpg.Entity;
 
 import me.diisk.airpg.Item.ItemGroup;
 import me.diisk.airpg.Item.Item;
+import me.diisk.airpg.Item.ItemCategory;
+import me.diisk.airpg.Item.ItemGrade;
 import me.diisk.airpg.Item.Slot;
 import me.diisk.airpg.Item.ItemType;
 
 import static me.diisk.airpg.Attributes.*;
 
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,14 +23,19 @@ import java.util.Random;
 import me.diisk.airpg.Attributes;
 import me.diisk.airpg.Battle;
 import me.diisk.airpg.Battle.LogLine;
+import me.diisk.airpg.DateTime;
 import me.diisk.airpg.HealSource;
+import me.diisk.airpg.OrdenableStatistic;
 import me.diisk.airpg.Skill;
 import me.diisk.airpg.Team;
+import me.diisk.airpg.CustomList.CustomList;
 import me.diisk.airpg.CustomList.Ordenable;
 import me.diisk.airpg.Damage.Damage;
 import me.diisk.airpg.Damage.DamageSource;
 import me.diisk.airpg.Effect.Effect;
 import me.diisk.airpg.Effect.EffectType;
+import me.diisk.airpg.Entity.NPC.NPC;
+import me.diisk.airpg.Entity.NPC.NPCGenerator;
 
 import static me.diisk.airpg.Utils.*;
 
@@ -530,19 +543,212 @@ public class Entity implements Ordenable{
 	public double getLostHealth() {
 		return getMaxHealth()-health;
 	}
+	
+	private ItemGroup testeWeaponGroup() {
+		Item item = equipments[Slot.WEAPON.getID()];
+		if(item!=null) {
+			return item.getGroup();
+		}
+		return ItemGroup.ACCESSORIES;
+	}
+	
+	private ItemCategory testeArmorCategory() {
+		Item item = equipments[Slot.ARMOR.getID()];
+		if(item!=null) {
+			return item.getCategory();
+		}
+		return ItemCategory.ACCURACY_ACCESSORY;
+	}
 
 	public static void main(String[] args) {
-		Entity e1 = new Entity("Golinight", Race.ABYSSAL, Classe.DRUID);
-		e1.equipments[Slot.WEAPON.getID()] = new Item(1, ItemType.DEMONIAC_ORB_1);
-		e1.equipments[Slot.WEAPON_SECONDARY.getID()] = new Item(1, ItemType.GRIMOIRE_4);
-		Team team1 = new Team(e1);
-		//team1.addMember(new Entity("Autonight", Race.AUTOMATO, Classe.KNIGHT));
-		//team1.addMember(new Entity("Golinight2", Race.GOLEM, Classe.KNIGHT));
-		Entity e2 = new Entity("Vampancer", Race.DARKIN, Classe.NECROMANCER);
-		e2.equipments[Slot.WEAPON.getID()] = new Item(1, ItemType.STAFF_1);
+		DateTime dt = DateTime.now();
+		NPCGenerator ng = new NPCGenerator();
+		ng.setAccessoriesCategories();
+		//ng.setArmorsCategories();
+		//ng.setGiveWeaponByClasseCategory(false);
+		ng.setGrades(ItemGrade.NORMAL);
+		List<NPC> npcs = ng.getAllPossibilities(10);
+		HashMap<Classe, int[]> classes = new HashMap<Classe, int[]>();
+		HashMap<Race, int[]> races = new HashMap<Race, int[]>();
+		HashMap<ItemGroup, int[]> weapons = new HashMap<ItemGroup, int[]>();
+		HashMap<ItemCategory, int[]> armors = new HashMap<ItemCategory, int[]>();
+		HashMap<String, int[]> entities = new HashMap<String, int[]>();
+		List<String> allBattles = new ArrayList<String>();
+		final int WINS = 0;
+		final int DRAWS = 1;
+		final int LOOSES = 2;
+		int allBattlesCount = 0;
+		int mod;
+		for(Entity n1:npcs) {
+			for(Entity n2:npcs) {
+				if(!n1.getName().equalsIgnoreCase(n2.getName())&&!(allBattles.contains(n1.getName()+"x"+n2.getName())||allBattles.contains(n2.getName()+"x"+n1.getName()))) {
+					Team team1 = new Team(n1);
+					Team team2 = new Team(n2);
+					Battle battle = Battle.fight(team1, team2);
+					allBattles.add(n1.getName()+"x"+n2.getName());
+					Team winners = battle.getWinners();
+					if(winners!=null) {
+						Entity winner = winners.getLeader();
+						Entity looser = n1.equals(winner)?n2:n1;
+						System.err.println("WINNER: "+winner.getName()+" LOOSER: "+looser.getName());
+						
+						for(int i=0;i<2;i++) {
+							Entity modder;
+							if(i==0) {
+								mod = WINS;
+								modder = winner;
+							}else {
+								mod = LOOSES;
+								modder = looser;
+							}
+							if(classes.containsKey(modder.classe)) {
+								classes.get(modder.classe)[mod]+=1;
+							}else {
+								classes.put(modder.classe, mod==WINS?new int[] {1,0,0}:new int[] {0,0,1});
+							}
+							if(races.containsKey(modder.race)) {
+								races.get(modder.race)[mod]+=1;
+							}else {
+								races.put(modder.race, mod==WINS?new int[] {1,0,0}:new int[] {0,0,1});
+							}
+							if(weapons.containsKey(modder.testeWeaponGroup())) {
+								weapons.get(modder.testeWeaponGroup())[mod]+=1;
+							}else {
+								weapons.put(modder.testeWeaponGroup(), mod==WINS?new int[] {1,0,0}:new int[] {0,0,1});
+							}
+							if(armors.containsKey(modder.testeArmorCategory())) {
+								armors.get(modder.testeArmorCategory())[mod]+=1;
+							}else {
+								armors.put(modder.testeArmorCategory(), mod==WINS?new int[] {1,0,0}:new int[] {0,0,1});
+							}
+							if(entities.containsKey(modder.getName())) {
+								entities.get(modder.getName())[mod]+=1;
+							}else {
+								entities.put(modder.getName(), mod==WINS?new int[] {1,0,0}:new int[] {0,0,1});
+							}
+						}
+					}else {
+						mod = DRAWS;
+						if(classes.containsKey(n1.classe)) {
+							classes.get(n1.classe)[mod]+=1;
+						}else {
+							classes.put(n1.classe, new int[] {0,1,0});
+						}
+						
+						if(classes.containsKey(n2.classe)) {
+							classes.get(n2.classe)[mod]+=1;
+						}else {
+							classes.put(n2.classe, new int[] {0,1,0});
+						}
+						if(races.containsKey(n1.race)) {
+							races.get(n1.race)[mod]+=1;
+						}else {
+							races.put(n1.race, new int[] {0,1,0});
+						}
+						
+						if(races.containsKey(n2.race)) {
+							races.get(n2.race)[mod]+=1;
+						}else {
+							races.put(n2.race, new int[] {0,1,0});
+						}
+						if(weapons.containsKey(n1.testeWeaponGroup())) {
+							weapons.get(n1.testeWeaponGroup())[mod]+=1;
+						}else {
+							weapons.put(n1.testeWeaponGroup(), new int[] {0,1,0});
+						}
+						
+						if(weapons.containsKey(n2.testeWeaponGroup())) {
+							weapons.get(n2.testeWeaponGroup())[mod]+=1;
+						}else {
+							weapons.put(n2.testeWeaponGroup(), new int[] {0,1,0});
+						}
+						if(armors.containsKey(n1.testeArmorCategory())) {
+							armors.get(n1.testeArmorCategory())[mod]+=1;
+						}else {
+							armors.put(n1.testeArmorCategory(), new int[] {0,1,0});
+						}
+						
+						if(armors.containsKey(n2.testeArmorCategory())) {
+							armors.get(n2.testeArmorCategory())[mod]+=1;
+						}else {
+							armors.put(n2.testeArmorCategory(), new int[] {0,1,0});
+						}
+						if(entities.containsKey(n1.getName())) {
+							entities.get(n1.getName())[mod]+=1;
+						}else {
+							entities.put(n1.getName(), new int[] {0,1,0});
+						}
+						if(entities.containsKey(n2.getName())) {
+							entities.get(n2.getName())[mod]+=1;
+						}else {
+							entities.put(n2.getName(), new int[] {0,1,0});
+						}
+						System.out.println(n1.getName()+" X "+n2.getName()+" EMPATE");
+					}
+					allBattlesCount++;
+				}
+			}
+		}
+		PrintWriter pw;
+		DateTime now = DateTime.now();
+		CustomList<OrdenableStatistic> oss = new CustomList<OrdenableStatistic>();
+		int order = -1;
+		try {
+			pw = new PrintWriter(new FileWriter("statistics "+now.toString().replaceAll("/", "").replaceAll(":", ".")+".txt"));
+			for(int i=0;i<5;i++) {
+				oss.clear();
+				switch(i) {
+				case 0:
+					pw.write("\nClasses:\n");
+					for(Classe classe:classes.keySet()) {
+						oss.add(new OrdenableStatistic(classe.name(), classes.get(classe), allBattlesCount));
+					}
+					order = OrdenableStatistic.VALUE_ID_WINSP;
+					break;
+				case 1:
+					pw.write("\n\n\nRaces:\n");
+					for(Race race:races.keySet()) {
+						oss.add(new OrdenableStatistic(race.name(), races.get(race), allBattlesCount));
+					}
+					order = OrdenableStatistic.VALUE_ID_WINSP;
+					break;
+				case 2:
+					pw.write("\n\n\nWeapons:\n");
+					for(ItemGroup weapon:weapons.keySet()) {
+						oss.add(new OrdenableStatistic(weapon.name(), weapons.get(weapon), allBattlesCount));
+					}
+					order = OrdenableStatistic.VALUE_ID_WINSP;
+					break;
+				case 3:
+					pw.write("\n\n\nArmors:\n");
+					for(ItemCategory armor:armors.keySet()) {
+						oss.add(new OrdenableStatistic(armor.name(), armors.get(armor), allBattlesCount));
+					}
+					order = OrdenableStatistic.VALUE_ID_WINSP;
+					break;
+				case 4:
+					pw.write("\n\n\nGeral:\nNumero de Variações: "+entities.size()+"\n");
+					for(String name:entities.keySet()) {
+						oss.add(new OrdenableStatistic(name, entities.get(name), allBattlesCount));
+					}
+					order = OrdenableStatistic.VALUE_ID_WINSP;
+					break;
+				}
+				oss.orderBy(order, false, true);
+				for(OrdenableStatistic os:oss.toList()) {
+					pw.write(os.toString()+"\n\n");
+				}
+			}
+
+			pw.write("\n\nTotal de Batalhas: "+allBattlesCount+" Tempo total: "+now.subtract(dt).getTime());
+			pw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		System.out.println("DONE!");
+		/*Team team1 = new Team(e1);
 		Team team2 = new Team(e2);
-		//team2.addMember(new Entity("Darkancer", Race.DARKIN, Classe.NECROMANCER)); 
-		//team2.addMember(new Entity("Abymancer", Race.ABYSSAL, Classe.NECROMANCER));
 		Battle battle = Battle.fight(team1, team2);
 		for(LogLine ll:battle.getLogLines()) {
 			if(!ll.isCanceled()) {
@@ -558,7 +764,7 @@ public class Entity implements Ordenable{
 			System.out.println(w);
 		}else {
 			System.out.println("EMPATOU");
-		}
+		}*/
 	}
 
 	public void damage(Entity owner, DamageSource damageSource) {

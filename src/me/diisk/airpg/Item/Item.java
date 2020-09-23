@@ -27,6 +27,10 @@ public class Item implements Ordenable{
 		return type.getSlot();
 	}
 	
+	public ItemCategory getCategory() {
+		return type.getCategory();
+	}
+	
 	public ItemGroup getGroup() {
 		return type.getGroup();
 	}

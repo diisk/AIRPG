@@ -1,14 +1,17 @@
 package me.diisk.airpg.Entity;
 
+import me.diisk.airpg.DateTime;
 import me.diisk.airpg.Item.Item;
 import me.diisk.airpg.Item.Slot;
 
 public class Player extends Entity {
 
+	private static final int INVENTORY_LENGTH = 30;
+	
 	private Item[] inventory = new Item[INVENTORY_LENGTH];
 	
-	protected Player(long id, String name, Race race, Classe classe) {
-		super(id, name, race, classe);
+	protected Player(String name, Race race, Classe classe) {
+		super(name, race, classe);
 		// TODO Auto-generated constructor stub
 	}
 	
