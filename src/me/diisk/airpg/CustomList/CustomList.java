@@ -8,9 +8,12 @@ public class CustomList <T>{
 	
 	private Object[] list = new Object[0];
 	
-	@SuppressWarnings("unchecked")
-	public T[] toArray() {
-		return (T[]) list;
+
+	public T[] toArray(T[] newArray) {
+		for(int i=0;i<list.length;i++) {
+			newArray[i]=(T) list[i];
+		}
+		return newArray;
 	}
 	
 	public int size() {
@@ -98,7 +101,7 @@ public class CustomList <T>{
 	
 	public CustomList<T> copy(){
 		CustomList<T> r = new CustomList<T>();
-		r.addAll(toArray());
+		r.addAll(this);
 		return r;
 	}
 	

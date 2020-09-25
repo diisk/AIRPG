@@ -11,6 +11,10 @@ public class Item implements Ordenable{
 	private int amount;
 	
 	public Item(int amount, ItemType type) {
+		if(type==null) {
+			throw new NullPointerException();
+		}
+		
 		this.amount=amount;
 		this.type=type;
 	}

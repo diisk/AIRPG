@@ -563,11 +563,12 @@ public class Entity implements Ordenable{
 	public static void main(String[] args) {
 		DateTime dt = DateTime.now();
 		NPCGenerator ng = new NPCGenerator();
-		ng.setAccessoriesCategories();
-		//ng.setArmorsCategories();
-		//ng.setGiveWeaponByClasseCategory(false);
+		ng.setAccessoriesCategories(new ItemCategory[] {null});
+		ng.setArmorsCategories(new ItemCategory[] {null});
+		ng.setWeaponsCategories(new ItemCategory[] {null});
+		ng.setGiveClasseArmor(true);
 		ng.setGrades(ItemGrade.NORMAL);
-		List<NPC> npcs = ng.getAllPossibilities(10);
+		List<NPC> npcs = ng.getAllPossibilities(1);
 		HashMap<Classe, int[]> classes = new HashMap<Classe, int[]>();
 		HashMap<Race, int[]> races = new HashMap<Race, int[]>();
 		HashMap<ItemGroup, int[]> weapons = new HashMap<ItemGroup, int[]>();
@@ -578,19 +579,21 @@ public class Entity implements Ordenable{
 		final int DRAWS = 1;
 		final int LOOSES = 2;
 		int allBattlesCount = 0;
+		int totalDraws = 0;
 		int mod;
 		for(Entity n1:npcs) {
 			for(Entity n2:npcs) {
-				if(!n1.getName().equalsIgnoreCase(n2.getName())&&!(allBattles.contains(n1.getName()+"x"+n2.getName())||allBattles.contains(n2.getName()+"x"+n1.getName()))) {
+				if(!n1.getName().equalsIgnoreCase(n2.getName())&&!allBattles.contains(n1.getName()+"x"+n2.getName())&&!allBattles.contains(n2.getName()+"x"+n1.getName())) {
 					Team team1 = new Team(n1);
 					Team team2 = new Team(n2);
+					System.out.println("COMEÇANDO BATALHA: "+n1.getName()+" x "+n2.getName());
 					Battle battle = Battle.fight(team1, team2);
 					allBattles.add(n1.getName()+"x"+n2.getName());
 					Team winners = battle.getWinners();
 					if(winners!=null) {
 						Entity winner = winners.getLeader();
 						Entity looser = n1.equals(winner)?n2:n1;
-						System.err.println("WINNER: "+winner.getName()+" LOOSER: "+looser.getName());
+						//System.err.println("WINNER: "+winner.getName()+" LOOSER: "+looser.getName());
 						
 						for(int i=0;i<2;i++) {
 							Entity modder;
@@ -628,6 +631,7 @@ public class Entity implements Ordenable{
 							}
 						}
 					}else {
+						totalDraws++;
 						mod = DRAWS;
 						if(classes.containsKey(n1.classe)) {
 							classes.get(n1.classe)[mod]+=1;
@@ -683,7 +687,7 @@ public class Entity implements Ordenable{
 						}else {
 							entities.put(n2.getName(), new int[] {0,1,0});
 						}
-						System.out.println(n1.getName()+" X "+n2.getName()+" EMPATE");
+						//System.out.println(n1.getName()+" X "+n2.getName()+" EMPATE");
 					}
 					allBattlesCount++;
 				}
@@ -740,7 +744,10 @@ public class Entity implements Ordenable{
 				}
 			}
 
-			pw.write("\n\nTotal de Batalhas: "+allBattlesCount+" Tempo total: "+now.subtract(dt).getTime());
+			int modp = (int) ((allBattlesCount-totalDraws)*100.0/allBattlesCount);
+			pw.write("\n\n WINS/LOSES: "+(allBattlesCount-totalDraws)+"("+modp+"%) DRAWS: "+totalDraws+"("+(int)(totalDraws*100.0/allBattlesCount)+"%)");
+			pw.write("Size: "+npcs.size()+" Total de Batalhas: "+allBattlesCount+"\n");
+			pw.write("Tempo total: "+now.subtract(dt).getTime());
 			pw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block

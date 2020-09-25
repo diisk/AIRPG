@@ -7,6 +7,7 @@ import me.diisk.airpg.Effect.EffectType;
 import me.diisk.airpg.Item.ItemCategory;
 import me.diisk.airpg.Item.ItemGroup;
 import me.diisk.airpg.Item.ItemType;
+import me.diisk.airpg.Item.Slot;
 
 public enum Classe {
 
@@ -102,33 +103,33 @@ public enum Classe {
 		return null;
 	}
 	
+	public boolean canUse(ItemType itemType) {
+		if(itemType.getSlot()==Slot.WEAPON||itemType.getSlot()==Slot.WEAPON_SECONDARY) {
+			if(itemType.getCategory()!=getCategory()) {
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
 	public ItemCategory getArmorCategory() {
 		switch(this) {
 		case ARCHER:
-			//return new ItemGroup[] {ItemGroup.LONG_BOW,ItemGroup.SHORT_BOW};
 		case ASSASSIN:
-			//return new ItemGroup[] {ItemGroup.DAGGERS};
-		case BARBARIAN:
-			//return new ItemGroup[] {ItemGroup.DUAL_AXE, ItemGroup.GIANT_HAMMER};
-		case DRUID:
-			//return new ItemGroup[] {ItemGroup.NATURE_ESSENCE};
-		case KNIGHT:
-			//return new ItemGroup[] {ItemGroup.LONG_SWORD};
 		case MONK:
-			//return new ItemGroup[] {ItemGroup.STICK, ItemGroup.BEER_MUG};
-		case NECROMANCER:
-			//return new ItemGroup[] {ItemGroup.DEMONIAC_ORB,ItemGroup.DEMONIAC_SCYTHE};
+			return ItemCategory.LIGHT_ARMOR;
+		case BARBARIAN:
+		case KNIGHT:
 		case NINJA:
-			//return new ItemGroup[] {ItemGroup.SHORT_SWORD};
 		case PALADIN:
-			//return new ItemGroup[] {ItemGroup.MACE};
+			return ItemCategory.HEAVY_ARMOR;
+		case DRUID:
+		case NECROMANCER:
 		case PRIEST:
-			//return new ItemGroup[] {ItemGroup.CRUCIFIX};
 		case SORCERER:
-			//return new ItemGroup[] {ItemGroup.STAFF};
 		case WARLOCK:
-			//return new ItemGroup[] {ItemGroup.MAGIC_SWORD};
-		
+			return ItemCategory.MAGIC_ARMOR;
 		}
 		return null;
 	}
