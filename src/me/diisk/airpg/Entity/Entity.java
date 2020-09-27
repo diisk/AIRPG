@@ -5,6 +5,8 @@ import me.diisk.airpg.Item.Item;
 import me.diisk.airpg.Item.ItemCategory;
 import me.diisk.airpg.Item.ItemGrade;
 import me.diisk.airpg.Item.Slot;
+import me.diisk.airpg.StatisticManager.OrdenableStatistic;
+import me.diisk.airpg.StatisticManager.StatisticManager;
 import me.diisk.airpg.Item.ItemType;
 
 import static me.diisk.airpg.Attributes.*;
@@ -25,7 +27,7 @@ import me.diisk.airpg.Battle;
 import me.diisk.airpg.Battle.LogLine;
 import me.diisk.airpg.DateTime;
 import me.diisk.airpg.HealSource;
-import me.diisk.airpg.OrdenableStatistic;
+import me.diisk.airpg.ObjectRAW;
 import me.diisk.airpg.Skill;
 import me.diisk.airpg.Team;
 import me.diisk.airpg.CustomList.CustomList;
@@ -544,7 +546,7 @@ public class Entity implements Ordenable{
 		return getMaxHealth()-health;
 	}
 	
-	private ItemGroup testeWeaponGroup() {
+	private ItemGroup getWeaponGroup() {
 		Item item = equipments[Slot.WEAPON.getID()];
 		if(item!=null) {
 			return item.getGroup();
@@ -552,12 +554,54 @@ public class Entity implements Ordenable{
 		return ItemGroup.ACCESSORIES;
 	}
 	
-	private ItemCategory testeArmorCategory() {
-		Item item = equipments[Slot.ARMOR.getID()];
-		if(item!=null) {
-			return item.getCategory();
+	private ItemCategory getArmorCategory() {
+		HashMap<ItemCategory, Integer> acount = new HashMap<ItemCategory, Integer>();
+		Slot[] slots = new Slot[] {Slot.HELMET,Slot.ARMOR,Slot.GLOVES,Slot.FEETS};
+		for(Slot slot:slots) {
+			Item item = getEquipmentBy(slot);
+			if(item!=null) {
+				if(acount.containsKey(item.getCategory())) {
+					acount.replace(item.getCategory(), acount.get(item.getCategory())+1);
+				}else {
+					acount.put(item.getCategory(), 1);
+				}
+			}
 		}
-		return ItemCategory.ACCURACY_ACCESSORY;
+		ItemCategory r = ItemCategory.ACCURACY_ACCESSORY;
+		int mod = 0;
+		for(ItemCategory ic:acount.keySet()) {
+			int v = acount.get(ic);
+			if(v>mod) {
+				r = ic;
+				mod = v;
+			}
+		}
+		return r;
+	}
+	
+	private ItemCategory getAccessoryCategory() {
+		HashMap<ItemCategory, Integer> acount = new HashMap<ItemCategory, Integer>();
+		Slot[] slots = new Slot[] {Slot.EARRING,Slot.EARRING2,Slot.NECKLACE,Slot.WAIST,Slot.RING,Slot.RING2};
+		for(Slot slot:slots) {
+			Item item = getEquipmentBy(slot);
+			if(item!=null) {
+				if(acount.containsKey(item.getCategory())) {
+					acount.replace(item.getCategory(), acount.get(item.getCategory())+1);
+				}else {
+					acount.put(item.getCategory(), 1);
+				}
+			}
+		}
+		ItemCategory r = ItemCategory.MAGIC_WEAPON;
+		int mod = 0;
+		for(ItemCategory ic:acount.keySet()) {
+			int v = acount.get(ic);
+			if(v>mod) {
+				r = ic;
+				mod = v;
+			}
+		}
+		return r;
 	}
 
 	public static void main(String[] args) {
@@ -568,11 +612,13 @@ public class Entity implements Ordenable{
 		ng.setWeaponsCategories(new ItemCategory[] {null});
 		ng.setGiveClasseArmor(true);
 		ng.setGrades(ItemGrade.NORMAL);
-		List<NPC> npcs = ng.getAllPossibilities(1);
+		int level = 1;
+		List<NPC> npcs = ng.getAllPossibilities(level);
 		HashMap<Classe, int[]> classes = new HashMap<Classe, int[]>();
 		HashMap<Race, int[]> races = new HashMap<Race, int[]>();
 		HashMap<ItemGroup, int[]> weapons = new HashMap<ItemGroup, int[]>();
 		HashMap<ItemCategory, int[]> armors = new HashMap<ItemCategory, int[]>();
+		HashMap<ItemCategory, int[]> accessories = new HashMap<ItemCategory, int[]>();
 		HashMap<String, int[]> entities = new HashMap<String, int[]>();
 		List<String> allBattles = new ArrayList<String>();
 		final int WINS = 0;
@@ -604,26 +650,47 @@ public class Entity implements Ordenable{
 								mod = LOOSES;
 								modder = looser;
 							}
-							if(classes.containsKey(modder.classe)) {
-								classes.get(modder.classe)[mod]+=1;
-							}else {
-								classes.put(modder.classe, mod==WINS?new int[] {1,0,0}:new int[] {0,0,1});
+							
+							if(n1.classe!=n2.classe) {
+								if(classes.containsKey(modder.classe)) {
+									classes.get(modder.classe)[mod]+=1;
+								}else {
+									classes.put(modder.classe, mod==WINS?new int[] {1,0,0}:new int[] {0,0,1});
+								}
 							}
-							if(races.containsKey(modder.race)) {
-								races.get(modder.race)[mod]+=1;
-							}else {
-								races.put(modder.race, mod==WINS?new int[] {1,0,0}:new int[] {0,0,1});
+							
+							if(n1.race!=n2.race) {
+								if(races.containsKey(modder.race)) {
+									races.get(modder.race)[mod]+=1;
+								}else {
+									races.put(modder.race, mod==WINS?new int[] {1,0,0}:new int[] {0,0,1});
+								}
 							}
-							if(weapons.containsKey(modder.testeWeaponGroup())) {
-								weapons.get(modder.testeWeaponGroup())[mod]+=1;
-							}else {
-								weapons.put(modder.testeWeaponGroup(), mod==WINS?new int[] {1,0,0}:new int[] {0,0,1});
+							
+							if(n1.getWeaponGroup()!=n2.getWeaponGroup()) {
+								if(weapons.containsKey(modder.getWeaponGroup())) {
+									weapons.get(modder.getWeaponGroup())[mod]+=1;
+								}else {
+									weapons.put(modder.getWeaponGroup(), mod==WINS?new int[] {1,0,0}:new int[] {0,0,1});
+								}
 							}
-							if(armors.containsKey(modder.testeArmorCategory())) {
-								armors.get(modder.testeArmorCategory())[mod]+=1;
-							}else {
-								armors.put(modder.testeArmorCategory(), mod==WINS?new int[] {1,0,0}:new int[] {0,0,1});
+							
+							if(n1.getArmorCategory()!=n2.getArmorCategory()) {
+								if(armors.containsKey(modder.getArmorCategory())) {
+									armors.get(modder.getArmorCategory())[mod]+=1;
+								}else {
+									armors.put(modder.getArmorCategory(), mod==WINS?new int[] {1,0,0}:new int[] {0,0,1});
+								}
 							}
+							
+							if(n1.getAccessoryCategory()!=n2.getAccessoryCategory()) {
+								if(accessories.containsKey(modder.getAccessoryCategory())) {
+									accessories.get(modder.getAccessoryCategory())[mod]+=1;
+								}else {
+									accessories.put(modder.getAccessoryCategory(), mod==WINS?new int[] {1,0,0}:new int[] {0,0,1});
+								}
+							}
+							
 							if(entities.containsKey(modder.getName())) {
 								entities.get(modder.getName())[mod]+=1;
 							}else {
@@ -633,50 +700,72 @@ public class Entity implements Ordenable{
 					}else {
 						totalDraws++;
 						mod = DRAWS;
-						if(classes.containsKey(n1.classe)) {
-							classes.get(n1.classe)[mod]+=1;
-						}else {
-							classes.put(n1.classe, new int[] {0,1,0});
+						
+						if(n1.classe!=n2.classe) {
+							if(classes.containsKey(n1.classe)) {
+								classes.get(n1.classe)[mod]+=1;
+							}else {
+								classes.put(n1.classe, new int[] {0,1,0});
+							}
+							if(classes.containsKey(n2.classe)) {
+								classes.get(n2.classe)[mod]+=1;
+							}else {
+								classes.put(n2.classe, new int[] {0,1,0});
+							}
 						}
 						
-						if(classes.containsKey(n2.classe)) {
-							classes.get(n2.classe)[mod]+=1;
-						}else {
-							classes.put(n2.classe, new int[] {0,1,0});
-						}
-						if(races.containsKey(n1.race)) {
-							races.get(n1.race)[mod]+=1;
-						}else {
-							races.put(n1.race, new int[] {0,1,0});
-						}
-						
-						if(races.containsKey(n2.race)) {
-							races.get(n2.race)[mod]+=1;
-						}else {
-							races.put(n2.race, new int[] {0,1,0});
-						}
-						if(weapons.containsKey(n1.testeWeaponGroup())) {
-							weapons.get(n1.testeWeaponGroup())[mod]+=1;
-						}else {
-							weapons.put(n1.testeWeaponGroup(), new int[] {0,1,0});
+						if(n1.race!=n2.race) {
+							if(races.containsKey(n1.race)) {
+								races.get(n1.race)[mod]+=1;
+							}else {
+								races.put(n1.race, new int[] {0,1,0});
+							}						
+							if(races.containsKey(n2.race)) {
+								races.get(n2.race)[mod]+=1;
+							}else {
+								races.put(n2.race, new int[] {0,1,0});
+							}
 						}
 						
-						if(weapons.containsKey(n2.testeWeaponGroup())) {
-							weapons.get(n2.testeWeaponGroup())[mod]+=1;
-						}else {
-							weapons.put(n2.testeWeaponGroup(), new int[] {0,1,0});
-						}
-						if(armors.containsKey(n1.testeArmorCategory())) {
-							armors.get(n1.testeArmorCategory())[mod]+=1;
-						}else {
-							armors.put(n1.testeArmorCategory(), new int[] {0,1,0});
+						if(n1.getWeaponGroup()!=n2.getWeaponGroup()) {
+							if(weapons.containsKey(n1.getWeaponGroup())) {
+								weapons.get(n1.getWeaponGroup())[mod]+=1;
+							}else {
+								weapons.put(n1.getWeaponGroup(), new int[] {0,1,0});
+							}
+							if(weapons.containsKey(n2.getWeaponGroup())) {
+								weapons.get(n2.getWeaponGroup())[mod]+=1;
+							}else {
+								weapons.put(n2.getWeaponGroup(), new int[] {0,1,0});
+							}
 						}
 						
-						if(armors.containsKey(n2.testeArmorCategory())) {
-							armors.get(n2.testeArmorCategory())[mod]+=1;
-						}else {
-							armors.put(n2.testeArmorCategory(), new int[] {0,1,0});
+						if(n1.getArmorCategory()!=n2.getArmorCategory()) {
+							if(armors.containsKey(n1.getArmorCategory())) {
+								armors.get(n1.getArmorCategory())[mod]+=1;
+							}else {
+								armors.put(n1.getArmorCategory(), new int[] {0,1,0});
+							}
+							if(armors.containsKey(n2.getArmorCategory())) {
+								armors.get(n2.getArmorCategory())[mod]+=1;
+							}else {
+								armors.put(n2.getArmorCategory(), new int[] {0,1,0});
+							}
 						}
+						
+						if(n1.getAccessoryCategory()!=n2.getAccessoryCategory()) {
+							if(accessories.containsKey(n1.getAccessoryCategory())) {
+								accessories.get(n1.getAccessoryCategory())[mod]+=1;
+							}else {
+								accessories.put(n1.getAccessoryCategory(), new int[] {0,1,0});
+							}
+							if(accessories.containsKey(n2.getAccessoryCategory())) {
+								accessories.get(n2.getAccessoryCategory())[mod]+=1;
+							}else {
+								accessories.put(n2.getAccessoryCategory(), new int[] {0,1,0});
+							}
+						}
+						
 						if(entities.containsKey(n1.getName())) {
 							entities.get(n1.getName())[mod]+=1;
 						}else {
@@ -693,67 +782,31 @@ public class Entity implements Ordenable{
 				}
 			}
 		}
-		PrintWriter pw;
 		DateTime now = DateTime.now();
-		CustomList<OrdenableStatistic> oss = new CustomList<OrdenableStatistic>();
-		int order = -1;
-		try {
-			pw = new PrintWriter(new FileWriter("statistics "+now.toString().replaceAll("/", "").replaceAll(":", ".")+".txt"));
-			for(int i=0;i<5;i++) {
-				oss.clear();
-				switch(i) {
-				case 0:
-					pw.write("\nClasses:\n");
-					for(Classe classe:classes.keySet()) {
-						oss.add(new OrdenableStatistic(classe.name(), classes.get(classe), allBattlesCount));
-					}
-					order = OrdenableStatistic.VALUE_ID_WINSP;
-					break;
-				case 1:
-					pw.write("\n\n\nRaces:\n");
-					for(Race race:races.keySet()) {
-						oss.add(new OrdenableStatistic(race.name(), races.get(race), allBattlesCount));
-					}
-					order = OrdenableStatistic.VALUE_ID_WINSP;
-					break;
-				case 2:
-					pw.write("\n\n\nWeapons:\n");
-					for(ItemGroup weapon:weapons.keySet()) {
-						oss.add(new OrdenableStatistic(weapon.name(), weapons.get(weapon), allBattlesCount));
-					}
-					order = OrdenableStatistic.VALUE_ID_WINSP;
-					break;
-				case 3:
-					pw.write("\n\n\nArmors:\n");
-					for(ItemCategory armor:armors.keySet()) {
-						oss.add(new OrdenableStatistic(armor.name(), armors.get(armor), allBattlesCount));
-					}
-					order = OrdenableStatistic.VALUE_ID_WINSP;
-					break;
-				case 4:
-					pw.write("\n\n\nGeral:\nNumero de Variações: "+entities.size()+"\n");
-					for(String name:entities.keySet()) {
-						oss.add(new OrdenableStatistic(name, entities.get(name), allBattlesCount));
-					}
-					order = OrdenableStatistic.VALUE_ID_WINSP;
-					break;
-				}
-				oss.orderBy(order, false, true);
-				for(OrdenableStatistic os:oss.toList()) {
-					pw.write(os.toString()+"\n\n");
-				}
-			}
-
-			int modp = (int) ((allBattlesCount-totalDraws)*100.0/allBattlesCount);
-			pw.write("\n\n WINS/LOSES: "+(allBattlesCount-totalDraws)+"("+modp+"%) DRAWS: "+totalDraws+"("+(int)(totalDraws*100.0/allBattlesCount)+"%)");
-			pw.write("Size: "+npcs.size()+" Total de Batalhas: "+allBattlesCount+"\n");
-			pw.write("Tempo total: "+now.subtract(dt).getTime());
-			pw.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+		StatisticManager sm = new StatisticManager(level, allBattlesCount, totalDraws, now.subtract(dt), npcs.size());
+		for(Classe classe:classes.keySet()) {
+			sm.addOrdenableStatistic(StatisticManager.CLASSES, new OrdenableStatistic(classe.name(), classes.get(classe), allBattlesCount));
 		}
-		System.out.println("DONE!");
+		for(Race race:races.keySet()) {
+			sm.addOrdenableStatistic(StatisticManager.RACES, new OrdenableStatistic(race.name(), races.get(race), allBattlesCount));
+		}
+		for(ItemGroup weapon:weapons.keySet()) {
+			sm.addOrdenableStatistic(StatisticManager.WEAPONS, new OrdenableStatistic(weapon.name(), weapons.get(weapon), allBattlesCount));
+		}
+		for(ItemCategory armor:armors.keySet()) {
+			sm.addOrdenableStatistic(StatisticManager.ARMORS, new OrdenableStatistic(armor.name(), armors.get(armor), allBattlesCount));
+		}
+		for(ItemCategory accessory:accessories.keySet()) {
+			sm.addOrdenableStatistic(StatisticManager.ACCESSORIES, new OrdenableStatistic(accessory.name(), accessories.get(accessory), allBattlesCount));
+		}
+		for(String name:entities.keySet()) {
+			sm.addOrdenableStatistic(StatisticManager.ALL, new OrdenableStatistic(name, entities.get(name), allBattlesCount));
+		}
+		if(ObjectRAW.objectToFile(sm, "Statistic Logs\\LOG_"+now.toString().replaceAll("/", "_").replaceAll(" ", "_").replaceAll(":", "_")+".smos")) {
+			System.out.println("DONE!");
+		}
+		
+		
 		/*Team team1 = new Team(e1);
 		Team team2 = new Team(e2);
 		Battle battle = Battle.fight(team1, team2);

@@ -1,11 +1,16 @@
-package me.diisk.airpg;
+package me.diisk.airpg.StatisticManager;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 
 import me.diisk.airpg.CustomList.Ordenable;
 
-public class OrdenableStatistic implements Ordenable{
+public class OrdenableStatistic implements Ordenable, Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	public static final int VALUE_ID_WINSP = 0;
 	public static final int VALUE_ID_DRAWSP = 1;
 	public static final int VALUE_ID_LOOSESP = 2;
