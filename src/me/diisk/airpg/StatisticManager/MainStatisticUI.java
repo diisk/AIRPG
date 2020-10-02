@@ -13,10 +13,13 @@ import java.awt.event.ComponentListener;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
 import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Random;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -43,7 +46,12 @@ public class MainStatisticUI extends JFrame {
 	private static final Dimension MIN_SIZE = new Dimension(1200, 700);
 	private static final Dimension SCREEN_SIZE = Toolkit.getDefaultToolkit().getScreenSize();
 	
-	private StatisticManager sm = null;
+	protected static final int VICTORY = 0;
+	protected static final int DEFEAT = 1;
+	protected static final int DRAW = 2;
+	protected static final int PARTICIPATION = 3;
+	
+	private StatisticManager statisticManager = null;
 	
 	private JPanel topPanel = new JPanel();
 	private JPanel leftPanel = new JPanel();
@@ -66,10 +74,13 @@ public class MainStatisticUI extends JFrame {
 	private JTextField txfLevel = new JTextField();
 	
 	//LEFTPANEL COMPONENTS
+	private JLabel lblType = new JLabel("Tipo:");
 	private JLabel lblFilterBy = new JLabel("Filtrar por:");
 	private JLabel lblOrderBy = new JLabel("Ordenar por:");
 	private JLabel lblShow = new JLabel("Mostrar:");
 	private JLabel lblAgroupBy = new JLabel("Agrupar por:");
+	
+	private JComboBox<StatisticType> comboType = new JComboBox<StatisticType>();
 	
 	private JTextField txfFilterBy = new JTextField();
 	private JTextField txfAgroupBy = new JTextField();
@@ -83,6 +94,10 @@ public class MainStatisticUI extends JFrame {
 	private JCheckBox cbLoses = new JCheckBox("Derrotas");
 	private JCheckBox cbDraws = new JCheckBox("Empates");
 	private JCheckBox cbParticipations = new JCheckBox("Participações");
+	
+	//RIGHTPANEL COMPONENTS
+	private List<InfoPanel> infoPanels = new ArrayList<InfoPanel>();
+	private InfoPanel selected = null;
 	
 	public static void main(String[] args) {
 		try {
@@ -112,6 +127,28 @@ public class MainStatisticUI extends JFrame {
 		return new Dimension((int)(widthP*parent.width), (int)(heightP*parent.height));
 	}
 	
+	private void setStatisticManager(StatisticManager statisticManager, String name) {
+		this.statisticManager = statisticManager;
+		txfFileName.setText(name);
+		txfBattlesCount.setText(statisticManager.getAllBattlesCount()+"");
+		txfDuration.setText(statisticManager.getDuration().getTime());
+		txfLevel.setText(statisticManager.getLevel()+"");
+		txfNPCsCount.setText(statisticManager.getNPCsCount()+"");
+		txfTotalDraws.setText(statisticManager.getTotalDraws()+"");
+		for(InfoPanel ip:getInfoPanels()) {
+			removeInfoPanel(ip);
+		}
+		InfoPanel ip = new InfoPanel();
+		ip.statisticManager=statisticManager;
+		addInfoPanel(ip);
+	}
+	
+	public List<InfoPanel> getInfoPanels() {
+		List<InfoPanel> r = new ArrayList<InfoPanel>();
+		r.addAll(infoPanels);
+		return r;
+	}
+	
 	private void constructTopPanel() {
 		JLabel[] lbls = new JLabel[] {lblBattlesCount,lblDuration,lblNPCsCount,lblTotalDraws,lblLevel,lblFileName};
 		JTextField[] txfs = new JTextField[] {txfBattlesCount,txfDuration,txfLevel,txfNPCsCount,txfTotalDraws,txfFileName};
@@ -131,13 +168,7 @@ public class MainStatisticUI extends JFrame {
 					File selected = jfc.getSelectedFile();
 					Object o = ObjectRAW.fileToObject(selected.getAbsolutePath());
 					if(o instanceof StatisticManager) {
-						sm = (StatisticManager) o;
-						txfFileName.setText(selected.getName());
-						txfBattlesCount.setText(sm.getAllBattlesCount()+"");
-						txfDuration.setText(sm.getDuration().getTime());
-						txfLevel.setText(sm.getLevel()+"");
-						txfNPCsCount.setText(sm.getNPCsCount()+"");
-						txfTotalDraws.setText(sm.getTotalDraws()+"");
+						setStatisticManager((StatisticManager) o,selected.getName());
 					}else {
 						JOptionPane.showMessageDialog(instance, "Não foi possível selecionar o arquivo, tente novamente.", "Erro", JOptionPane.ERROR_MESSAGE);
 					}
@@ -159,7 +190,10 @@ public class MainStatisticUI extends JFrame {
 	}
 	
 	private void constructLeftPanel() {
-		Component[] cps = new Component[] {txfFilterBy,txfAgroupBy,lblFilterBy,lblOrderBy,lblShow,lblAgroupBy,rbtnDraw,rbtnLose,rbtnParticipation,rbtnWin,cbDraws,cbLoses,cbParticipations,cbWins};
+		Component[] cps = new Component[] {comboType,txfFilterBy,txfAgroupBy,lblType,lblFilterBy,lblOrderBy,lblShow,lblAgroupBy,rbtnDraw,rbtnLose,rbtnParticipation,rbtnWin,cbDraws,cbLoses,cbParticipations,cbWins};
+		for(StatisticType st:StatisticType.values()) {
+			comboType.addItem(st);
+		}
 		for(Component c:cps) {
 			leftPanel.add(c);
 			if(c instanceof JRadioButton || c instanceof JCheckBox) {
@@ -171,6 +205,126 @@ public class MainStatisticUI extends JFrame {
 				//jl.setBorder(new BevelBorder(BevelBorder.RAISED));
 			}
 		}
+	}
+	
+	public void setSelected(InfoPanel selected) {
+		this.selected = selected;
+		comboType.setSelectedItem(selected.type);
+		txfAgroupBy.setText(selected.agroup);
+		txfFilterBy.setText(selected.filter);
+		switch(selected.orderBy) {
+		case VICTORY:
+			rbtnWin.setSelected(true);
+			rbtnLose.setSelected(false);
+			rbtnDraw.setSelected(false);
+			rbtnParticipation.setSelected(false);
+			break;
+		case DEFEAT:
+			rbtnWin.setSelected(false);
+			rbtnLose.setSelected(true);
+			rbtnDraw.setSelected(false);
+			rbtnParticipation.setSelected(false);
+			break;
+		case DRAW:
+			rbtnWin.setSelected(false);
+			rbtnLose.setSelected(false);
+			rbtnDraw.setSelected(true);
+			rbtnParticipation.setSelected(false);
+			break;
+		case PARTICIPATION:
+			rbtnWin.setSelected(false);
+			rbtnLose.setSelected(false);
+			rbtnDraw.setSelected(false);
+			rbtnParticipation.setSelected(true);
+			break;
+		}
+		for(int i=0;i<4;i++) {
+			switch(i) {
+			case VICTORY:
+				cbWins.setSelected(selected.showing[i]);
+				break;
+			case DEFEAT:
+				cbLoses.setSelected(selected.showing[i]);
+				break;
+			case DRAW:
+				cbDraws.setSelected(selected.showing[i]);
+				break;
+			case PARTICIPATION:
+				cbParticipations.setSelected(selected.showing[i]);
+				break;
+			}
+		}
+		selected.updateTable();
+	}
+	
+	private InfoPanel getInfoPanelBy(int id) {
+		for(InfoPanel ip:infoPanels) {
+			if(ip.id==id) {
+				return ip;
+			}
+		}
+		return null;
+	}
+	
+	public void addInfoPanel(InfoPanel ip) {
+		int id = -1;
+		for(InfoPanel inp:infoPanels) {
+			if(inp.id>id) {
+				id=inp.id;
+			}
+		}
+		id++;
+		for(int i=0;i<id;i++) {
+			if(getInfoPanelBy(i)==null) {
+				break;
+			}
+		}
+		ip.id=id;
+		infoPanels.add(ip);
+		ip.updateTable();
+		rightPanel.add(ip);
+		resizeRightPanel();
+		setSelected(ip);
+	}
+	
+	private void resizeRightPanel() {
+		if(infoPanels.size()>0) {
+			Dimension dim = translateDim(rightPanel.getSize(), 1/infoPanels.size(), 1);
+			int x = 0;
+			for(InfoPanel ip:infoPanels) {
+				ip.setSize(dim);
+				ip.setLocation(x, 0);
+				//ip.setBorder(new BevelBorder(BevelBorder.LOWERED));
+				x+=dim.width;
+				ip.resize();
+			}
+		}
+	}
+	
+	private void removeInfoPanel(InfoPanel ip) {
+		for(int i=0;i<infoPanels.size();i++) {
+			InfoPanel inp = infoPanels.get(i);
+				if(inp.id==ip.id) {
+					rightPanel.remove(inp);
+					infoPanels.remove(i);
+					System.out.println("REMOVIDO "+ip.id);
+					break;
+				}
+		}
+		
+		if(ip.id==selected.id&&infoPanels.size()>0) {
+			setSelected(infoPanels.get(0));
+		}
+		resizeRightPanel();
+	}
+	
+	private void constructRightPanel() {
+		InfoPanel ip = new InfoPanel();
+		addInfoPanel(ip);
+	}
+	
+	public static MainStatisticUI getInstance() {
+		return instance;
 	}
 	
 	private void resize() {
@@ -220,6 +374,11 @@ public class MainStatisticUI extends JFrame {
 		leftPanel.setLocation(0, topPanel.getHeight());
 		leftPanel.setSize(translateDim(getSize(), 0.2, 0.85));
 		
+		lblType.setSize(translateDim(leftPanel.getSize(), 0.48, 0.04));
+		lblType.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.01));
+		comboType.setSize(translateDim(leftPanel.getSize(), 0.48, 0.04));
+		comboType.setLocation((int)(leftPanel.getSize().width*0.48), (int)(leftPanel.getSize().height*0.01));
+		
 		lblFilterBy.setSize(translateDim(leftPanel.getSize(), 0.94, 0.04));
 		lblFilterBy.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.08));
 		txfFilterBy.setSize(translateDim(leftPanel.getSize(), 0.94, 0.04));
@@ -255,6 +414,8 @@ public class MainStatisticUI extends JFrame {
 		rightPanel.setBackground(getRandomColor(random, colors));
 		rightPanel.setLocation(leftPanel.getWidth(), topPanel.getHeight());
 		rightPanel.setSize(translateDim(getSize(), 0.8, 0.85));
+		
+		resizeRightPanel();
 	}
 	
 	public MainStatisticUI(Dimension minSize){
@@ -295,6 +456,7 @@ public class MainStatisticUI extends JFrame {
 		});
 		constructTopPanel();
 		constructLeftPanel();
+		constructRightPanel();
 	}
 	
 }

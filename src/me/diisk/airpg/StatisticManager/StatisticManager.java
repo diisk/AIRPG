@@ -11,12 +11,6 @@ public class StatisticManager implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	public static final int RACES = 0;
-	public static final int CLASSES = 1;
-	public static final int WEAPONS = 2;
-	public static final int ARMORS = 3;
-	public static final int ACCESSORIES = 4;
-	public static final int ALL = 5;
 	
 	private OrdenableStatistic[][] oss = new OrdenableStatistic[6][0];
 	private int allBattlesCount;
@@ -66,7 +60,7 @@ public class StatisticManager implements Serializable{
 		return new DateTime(duration);
 	}
 	
-	public CustomList<OrdenableStatistic> getOrdenableStatisc(int type){
+	public CustomList<OrdenableStatistic> getOrdenableStatistic(int type){
 		CustomList<OrdenableStatistic> r = new CustomList<OrdenableStatistic>();
 		r.addAll(oss[type]);
 		return r;

@@ -7,6 +7,7 @@ import me.diisk.airpg.Item.ItemGrade;
 import me.diisk.airpg.Item.Slot;
 import me.diisk.airpg.StatisticManager.OrdenableStatistic;
 import me.diisk.airpg.StatisticManager.StatisticManager;
+import me.diisk.airpg.StatisticManager.StatisticType;
 import me.diisk.airpg.Item.ItemType;
 
 import static me.diisk.airpg.Attributes.*;
@@ -785,22 +786,22 @@ public class Entity implements Ordenable{
 		DateTime now = DateTime.now();
 		StatisticManager sm = new StatisticManager(level, allBattlesCount, totalDraws, now.subtract(dt), npcs.size());
 		for(Classe classe:classes.keySet()) {
-			sm.addOrdenableStatistic(StatisticManager.CLASSES, new OrdenableStatistic(classe.name(), classes.get(classe), allBattlesCount));
+			sm.addOrdenableStatistic(StatisticType.CLASSES.getID(), new OrdenableStatistic(classe.name(), classes.get(classe), allBattlesCount));
 		}
 		for(Race race:races.keySet()) {
-			sm.addOrdenableStatistic(StatisticManager.RACES, new OrdenableStatistic(race.name(), races.get(race), allBattlesCount));
+			sm.addOrdenableStatistic(StatisticType.RACES.getID(), new OrdenableStatistic(race.name(), races.get(race), allBattlesCount));
 		}
 		for(ItemGroup weapon:weapons.keySet()) {
-			sm.addOrdenableStatistic(StatisticManager.WEAPONS, new OrdenableStatistic(weapon.name(), weapons.get(weapon), allBattlesCount));
+			sm.addOrdenableStatistic(StatisticType.WEAPONS.getID(), new OrdenableStatistic(weapon.name(), weapons.get(weapon), allBattlesCount));
 		}
 		for(ItemCategory armor:armors.keySet()) {
-			sm.addOrdenableStatistic(StatisticManager.ARMORS, new OrdenableStatistic(armor.name(), armors.get(armor), allBattlesCount));
+			sm.addOrdenableStatistic(StatisticType.ARMORS.getID(), new OrdenableStatistic(armor.name(), armors.get(armor), allBattlesCount));
 		}
 		for(ItemCategory accessory:accessories.keySet()) {
-			sm.addOrdenableStatistic(StatisticManager.ACCESSORIES, new OrdenableStatistic(accessory.name(), accessories.get(accessory), allBattlesCount));
+			sm.addOrdenableStatistic(StatisticType.ACCESSORIES.getID(), new OrdenableStatistic(accessory.name(), accessories.get(accessory), allBattlesCount));
 		}
 		for(String name:entities.keySet()) {
-			sm.addOrdenableStatistic(StatisticManager.ALL, new OrdenableStatistic(name, entities.get(name), allBattlesCount));
+			sm.addOrdenableStatistic(StatisticType.ALL.getID(), new OrdenableStatistic(name, entities.get(name), allBattlesCount));
 		}
 		if(ObjectRAW.objectToFile(sm, "Statistic Logs\\LOG_"+now.toString().replaceAll("/", "_").replaceAll(" ", "_").replaceAll(":", "_")+".smos")) {
 			System.out.println("DONE!");
