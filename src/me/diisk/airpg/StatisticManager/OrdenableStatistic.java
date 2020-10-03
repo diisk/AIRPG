@@ -39,6 +39,10 @@ public class OrdenableStatistic implements Ordenable, Serializable{
 		participationsPercent=participation/allBattlesCount*100;
 	}
 	
+	public int getAllBattlesCount() {
+		return (int) (participation*100/participationsPercent);
+	}
+	
 	@Override
 	public String toString() {
 		DecimalFormat df = new DecimalFormat("#.##");
@@ -47,6 +51,10 @@ public class OrdenableStatistic implements Ordenable, Serializable{
 	
 	public String getName() {
 		return name;
+	}
+	
+	public int[] getValues() {
+		return new int[] {victories,draws,defeats};
 	}
 	
 	public String getVictories() {
@@ -66,7 +74,7 @@ public class OrdenableStatistic implements Ordenable, Serializable{
 	
 	public String getParticipations() {
 		DecimalFormat df = new DecimalFormat("#.##");
-		return participation+"("+df.format(participationsPercent).replaceFirst(",", ".")+"%)";
+		return (int)participation+"("+df.format(participationsPercent).replaceFirst(",", ".")+"%)";
 	}
 	
 	

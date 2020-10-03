@@ -12,6 +12,12 @@ import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
 import java.awt.event.ContainerEvent;
 import java.awt.event.ContainerListener;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -75,25 +81,29 @@ public class MainStatisticUI extends JFrame {
 	
 	//LEFTPANEL COMPONENTS
 	private JLabel lblType = new JLabel("Tipo:");
-	private JLabel lblFilterBy = new JLabel("Filtrar por:");
+	private JLabel lblAgroupBy = new JLabel("Agrupar por:");
 	private JLabel lblOrderBy = new JLabel("Ordenar por:");
 	private JLabel lblShow = new JLabel("Mostrar:");
-	private JLabel lblAgroupBy = new JLabel("Agrupar por:");
+	private JLabel lblFilterBy = new JLabel("Filtrar por:");
 	
 	private JComboBox<StatisticType> comboType = new JComboBox<StatisticType>();
 	
-	private JTextField txfFilterBy = new JTextField();
 	private JTextField txfAgroupBy = new JTextField();
+	private JTextField txfFilterBy = new JTextField();
 	
-	private JRadioButton rbtnWin = new JRadioButton("Vitória");
-	private JRadioButton rbtnLose = new JRadioButton("Derrota");
+	private JRadioButton rbtnVictory = new JRadioButton("Vitória");
+	private JRadioButton rbtnDefeat = new JRadioButton("Derrota");
 	private JRadioButton rbtnDraw = new JRadioButton("Empate");
 	private JRadioButton rbtnParticipation = new JRadioButton("Participação");
 	
-	private JCheckBox cbWins = new JCheckBox("Vitórias");
-	private JCheckBox cbLoses = new JCheckBox("Derrotas");
+	private JCheckBox cbVictories = new JCheckBox("Vitórias");
+	private JCheckBox cbDefeats = new JCheckBox("Derrotas");
 	private JCheckBox cbDraws = new JCheckBox("Empates");
 	private JCheckBox cbParticipations = new JCheckBox("Participações");
+	
+	private JButton btnNew = new JButton("Novo");
+	private JButton btnDelete = new JButton("Apagar");
+	private JButton btnAdditionals = new JButton("Informações Adicionais");
 	
 	//RIGHTPANEL COMPONENTS
 	private List<InfoPanel> infoPanels = new ArrayList<InfoPanel>();
@@ -139,7 +149,6 @@ public class MainStatisticUI extends JFrame {
 			removeInfoPanel(ip);
 		}
 		InfoPanel ip = new InfoPanel();
-		ip.statisticManager=statisticManager;
 		addInfoPanel(ip);
 	}
 	
@@ -190,7 +199,7 @@ public class MainStatisticUI extends JFrame {
 	}
 	
 	private void constructLeftPanel() {
-		Component[] cps = new Component[] {comboType,txfFilterBy,txfAgroupBy,lblType,lblFilterBy,lblOrderBy,lblShow,lblAgroupBy,rbtnDraw,rbtnLose,rbtnParticipation,rbtnWin,cbDraws,cbLoses,cbParticipations,cbWins};
+		Component[] cps = new Component[] {btnAdditionals,comboType,txfAgroupBy,txfFilterBy,lblType,lblAgroupBy,lblOrderBy,lblShow,lblFilterBy,rbtnDraw,rbtnDefeat,rbtnParticipation,rbtnVictory,cbDraws,cbDefeats,cbParticipations,cbVictories,btnNew,btnDelete};
 		for(StatisticType st:StatisticType.values()) {
 			comboType.addItem(st);
 		}
@@ -205,35 +214,121 @@ public class MainStatisticUI extends JFrame {
 				//jl.setBorder(new BevelBorder(BevelBorder.RAISED));
 			}
 		}
+		btnNew.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				addInfoPanel(new InfoPanel());
+			}
+		});
+		btnDelete.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				removeInfoPanel(selected);
+				if(infoPanels.size()==0) {
+					addInfoPanel(new InfoPanel());
+				}
+			}
+		});
+		for(int i=0;i<4;i++) {
+			JRadioButton rbtn = null;
+			JCheckBox checkB = null;
+			final int mod = i;
+			switch(i){
+			case VICTORY:
+				rbtn = rbtnVictory;
+				checkB = cbVictories;
+				break;
+			case DEFEAT:
+				rbtn = rbtnDefeat;
+				checkB = cbDefeats;
+				break;
+			case DRAW:
+				rbtn = rbtnDraw;
+				checkB = cbDraws;
+				break;
+			case PARTICIPATION:
+				rbtn = rbtnParticipation;
+				checkB = cbParticipations;
+				break;
+			}
+			checkB.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					selected.showing[mod]=!selected.showing[mod];
+					setSelected(selected);
+				}
+			});
+			rbtn.addActionListener(new ActionListener() {
+				
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					selected.orderBy=mod;
+					/*for(int i2=0;i2<selected.showing.length;i2++) {
+						selected.showing[i2]=mod==i2;
+					}*/
+					setSelected(selected);
+				}
+			});
+		}
+		comboType.addItemListener(new ItemListener() {
+			
+			@Override
+			public void itemStateChanged(ItemEvent e) {
+				if(e.getStateChange() == ItemEvent.SELECTED) {
+					selected.type=(StatisticType) e.getItem();
+					setSelected(selected);
+				}
+				
+			}
+		});
+		txfAgroupBy.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				selected.agroup=txfAgroupBy.getText();
+				selected.updateTable();
+				repaint();
+			}
+		});
+		txfFilterBy.addKeyListener(new KeyAdapter() {
+			@Override
+			public void keyReleased(KeyEvent e) {
+				selected.filter=txfFilterBy.getText();
+				selected.updateTable();
+				repaint();
+			}
+		});
 	}
 	
 	public void setSelected(InfoPanel selected) {
 		this.selected = selected;
 		comboType.setSelectedItem(selected.type);
-		txfAgroupBy.setText(selected.agroup);
 		txfFilterBy.setText(selected.filter);
+		txfAgroupBy.setText(selected.agroup);
 		switch(selected.orderBy) {
 		case VICTORY:
-			rbtnWin.setSelected(true);
-			rbtnLose.setSelected(false);
+			rbtnVictory.setSelected(true);
+			rbtnDefeat.setSelected(false);
 			rbtnDraw.setSelected(false);
 			rbtnParticipation.setSelected(false);
 			break;
 		case DEFEAT:
-			rbtnWin.setSelected(false);
-			rbtnLose.setSelected(true);
+			rbtnVictory.setSelected(false);
+			rbtnDefeat.setSelected(true);
 			rbtnDraw.setSelected(false);
 			rbtnParticipation.setSelected(false);
 			break;
 		case DRAW:
-			rbtnWin.setSelected(false);
-			rbtnLose.setSelected(false);
+			rbtnVictory.setSelected(false);
+			rbtnDefeat.setSelected(false);
 			rbtnDraw.setSelected(true);
 			rbtnParticipation.setSelected(false);
 			break;
 		case PARTICIPATION:
-			rbtnWin.setSelected(false);
-			rbtnLose.setSelected(false);
+			rbtnVictory.setSelected(false);
+			rbtnDefeat.setSelected(false);
 			rbtnDraw.setSelected(false);
 			rbtnParticipation.setSelected(true);
 			break;
@@ -241,10 +336,10 @@ public class MainStatisticUI extends JFrame {
 		for(int i=0;i<4;i++) {
 			switch(i) {
 			case VICTORY:
-				cbWins.setSelected(selected.showing[i]);
+				cbVictories.setSelected(selected.showing[i]);
 				break;
 			case DEFEAT:
-				cbLoses.setSelected(selected.showing[i]);
+				cbDefeats.setSelected(selected.showing[i]);
 				break;
 			case DRAW:
 				cbDraws.setSelected(selected.showing[i]);
@@ -255,6 +350,7 @@ public class MainStatisticUI extends JFrame {
 			}
 		}
 		selected.updateTable();
+		resizeRightPanel();
 	}
 	
 	private InfoPanel getInfoPanelBy(int id) {
@@ -266,7 +362,7 @@ public class MainStatisticUI extends JFrame {
 		return null;
 	}
 	
-	public void addInfoPanel(InfoPanel ip) {
+	private void addInfoPanel(InfoPanel ip) {
 		int id = -1;
 		for(InfoPanel inp:infoPanels) {
 			if(inp.id>id) {
@@ -279,7 +375,14 @@ public class MainStatisticUI extends JFrame {
 				break;
 			}
 		}
+		ip.addMouseListener(new MouseAdapter() {
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				setSelected(ip);
+			}
+		});
 		ip.id=id;
+		ip.statisticManager=statisticManager;
 		infoPanels.add(ip);
 		ip.updateTable();
 		rightPanel.add(ip);
@@ -289,9 +392,14 @@ public class MainStatisticUI extends JFrame {
 	
 	private void resizeRightPanel() {
 		if(infoPanels.size()>0) {
-			Dimension dim = translateDim(rightPanel.getSize(), 1/infoPanels.size(), 1);
+			Dimension dim = translateDim(rightPanel.getSize(), 1.0/infoPanels.size(), 1);
 			int x = 0;
 			for(InfoPanel ip:infoPanels) {
+				if(selected!=null&&ip.id==selected.id) {
+					ip.setBackground(Color.ORANGE);
+				}else {
+					ip.setBackground(Color.WHITE);
+				}
 				ip.setSize(dim);
 				ip.setLocation(x, 0);
 				//ip.setBorder(new BevelBorder(BevelBorder.LOWERED));
@@ -307,7 +415,6 @@ public class MainStatisticUI extends JFrame {
 				if(inp.id==ip.id) {
 					rightPanel.remove(inp);
 					infoPanels.remove(i);
-					System.out.println("REMOVIDO "+ip.id);
 					break;
 				}
 		}
@@ -379,17 +486,17 @@ public class MainStatisticUI extends JFrame {
 		comboType.setSize(translateDim(leftPanel.getSize(), 0.48, 0.04));
 		comboType.setLocation((int)(leftPanel.getSize().width*0.48), (int)(leftPanel.getSize().height*0.01));
 		
-		lblFilterBy.setSize(translateDim(leftPanel.getSize(), 0.94, 0.04));
-		lblFilterBy.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.08));
-		txfFilterBy.setSize(translateDim(leftPanel.getSize(), 0.94, 0.04));
-		txfFilterBy.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.13));
+		lblAgroupBy.setSize(translateDim(leftPanel.getSize(), 0.94, 0.04));
+		lblAgroupBy.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.08));
+		txfAgroupBy.setSize(translateDim(leftPanel.getSize(), 0.94, 0.04));
+		txfAgroupBy.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.13));
 		
 		lblOrderBy.setSize(translateDim(leftPanel.getSize(), 0.94, 0.04));
 		lblOrderBy.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.2));
-		rbtnWin.setSize(translateDim(leftPanel.getSize(), 0.45, 0.04));
-		rbtnWin.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.255));
-		rbtnLose.setSize(translateDim(leftPanel.getSize(), 0.45, 0.04));
-		rbtnLose.setLocation((int)(leftPanel.getSize().width*0.52), (int)(leftPanel.getSize().height*0.255));
+		rbtnVictory.setSize(translateDim(leftPanel.getSize(), 0.45, 0.04));
+		rbtnVictory.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.255));
+		rbtnDefeat.setSize(translateDim(leftPanel.getSize(), 0.45, 0.04));
+		rbtnDefeat.setLocation((int)(leftPanel.getSize().width*0.52), (int)(leftPanel.getSize().height*0.255));
 		rbtnDraw.setSize(translateDim(leftPanel.getSize(), 0.45, 0.04));
 		rbtnDraw.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.31));
 		rbtnParticipation.setSize(translateDim(leftPanel.getSize(), 0.45, 0.04));
@@ -397,19 +504,27 @@ public class MainStatisticUI extends JFrame {
 		
 		lblShow.setSize(translateDim(leftPanel.getSize(), 0.94, 0.04));
 		lblShow.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.38));
-		cbWins.setSize(translateDim(leftPanel.getSize(), 0.45, 0.04));
-		cbWins.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.435));
-		cbLoses.setSize(translateDim(leftPanel.getSize(), 0.45, 0.04));
-		cbLoses.setLocation((int)(leftPanel.getSize().width*0.52), (int)(leftPanel.getSize().height*0.435));
+		cbVictories.setSize(translateDim(leftPanel.getSize(), 0.45, 0.04));
+		cbVictories.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.435));
+		cbDefeats.setSize(translateDim(leftPanel.getSize(), 0.45, 0.04));
+		cbDefeats.setLocation((int)(leftPanel.getSize().width*0.52), (int)(leftPanel.getSize().height*0.435));
 		cbDraws.setSize(translateDim(leftPanel.getSize(), 0.45, 0.04));
 		cbDraws.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.49));
 		cbParticipations.setSize(translateDim(leftPanel.getSize(), 0.45, 0.04));
 		cbParticipations.setLocation((int)(leftPanel.getSize().width*0.52), (int)(leftPanel.getSize().height*0.49));
 		
-		lblAgroupBy.setSize(translateDim(leftPanel.getSize(), 0.94, 0.04));
-		lblAgroupBy.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.56));
-		txfAgroupBy.setSize(translateDim(leftPanel.getSize(), 0.94, 0.04));
-		txfAgroupBy.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.61));
+		lblFilterBy.setSize(translateDim(leftPanel.getSize(), 0.94, 0.04));
+		lblFilterBy.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.56));
+		txfFilterBy.setSize(translateDim(leftPanel.getSize(), 0.94, 0.04));
+		txfFilterBy.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.61));
+		
+		btnAdditionals.setSize(translateDim(leftPanel.getSize(), 0.95, 0.04));
+		btnAdditionals.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.68));
+		
+		btnNew.setSize(translateDim(leftPanel.getSize(), 0.46, 0.04));
+		btnNew.setLocation((int)(leftPanel.getSize().width*0.03), (int)(leftPanel.getSize().height*0.75));
+		btnDelete.setSize(translateDim(leftPanel.getSize(), 0.46, 0.04));
+		btnDelete.setLocation((int)(leftPanel.getSize().width*0.52), (int)(leftPanel.getSize().height*0.75));
 		
 		rightPanel.setBackground(getRandomColor(random, colors));
 		rightPanel.setLocation(leftPanel.getWidth(), topPanel.getHeight());
